@@ -11,3 +11,8 @@ var omdbSingleSearchUrl = "https://www.omdbapi.com/?apikey=" + omdbApiKey + "&i=
 var pageNumber;
 var totalPages;
 var totalMovies;
+
+// --------------------- EVENT LISTENER -------------------
+
+btnSearch.addEventListener("click",searchMovie);
+textboxSearch.addEventListener("keyup", toggleSearchButton);
