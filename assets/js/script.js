@@ -16,3 +16,4 @@ var totalMovies;
 
 btnSearch.addEventListener("click",searchMovie);
 textboxSearch.addEventListener("keyup", toggleSearchButton);
+
