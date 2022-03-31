@@ -41,7 +41,7 @@ function omdbSearchTitle(movieTitle,page){
             }
             else{
                 localStorage.setItem("currentPage",page);
-                //showSearchResult(data);
+                showSearchResult(data);
             }
           });
         } else {
@@ -57,10 +57,10 @@ function showSearchResult(data){
     //
     
     
-    removeSearchAndPagination();
+    //removeSearchAndPagination();
 
     totalMovies=data["totalResults"];
-    calculateTotalPages(totalMovies);
+    //calculateTotalPages(totalMovies);
     
 
     var sectionMovieResult=document.createElement("section");
@@ -83,7 +83,7 @@ function showSearchResult(data){
             poster="./assets/images/image-not-available.jpg";
         }
     
-        omdbGetSingleMovieDetails(data['Search'][i]['imdbID']);
+        //omdbGetSingleMovieDetails(data['Search'][i]['imdbID']);
 
 
 
