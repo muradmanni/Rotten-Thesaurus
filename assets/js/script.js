@@ -26,7 +26,7 @@ var enteredInput = "test"; // form-input.value is supposed to be entered here, n
 
 btnSearch.addEventListener("click",searchMovie);
 textboxSearch.addEventListener("keyup", toggleSearchButton);
-
+document.addEventListener("click",checkPaginationClick);
 
 function toggleSearchButton(){
     var totalChild = document.body.children.length;
@@ -298,6 +298,20 @@ function getCurrentPageNumber()
     return parseInt(localStorage.getItem("currentPage"));
 }
 
+
+function checkPaginationClick(event){
+    //console.log(event.target);
+    if((event.target).className==="pagination-link")
+    {
+        if (typeof(parseInt((event.target).textContent))==="number")
+        {
+            pageNumber=(event.target).textContent
+            omdbSearchTitle(textboxSearch.value,pageNumber);
+        }
+    }
+    localStorage.setItem("currentPage",pageNumber); 
+}
+
 const options = { // code provided by API docs
 	method: 'GET',
 	headers: {
@@ -324,3 +338,4 @@ fetch('https://wordsapiv1.p.rapidapi.com/words/' + enteredInput, options) // cod
 
 // if you want to play around with the words API, please use free demonstrator at: https://www.wordsapi.com/
 // regarding API Calls using the API Key, please use it sparingly as there is a limit of 2500 calls per day and exceeding that 2500 call limit results in a charge of $0.004 per call after that 2500 limit. 
+
