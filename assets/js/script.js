@@ -50,6 +50,24 @@ function omdbSearchTitle(movieTitle,page){
       });
 }
 
+function omdbGetSingleMovieDetails(omdbid){
+    fetch(omdbSingleSearchUrl+ omdbid).then(function (response) {
+        if (response.ok) {
+          response.json().then(function (data) {
+            if (data["Response"]==="False"){
+                console.log("Not Found");
+                //CHANGE console log to MODAL display
+            }
+            else{
+                console.log(data);
+            }
+          });
+        } else {
+            //if response not ok have to show error in modal
+        }
+      });
+}
+
 function showSearchResult(data){
     //console.log(data);
     // var totalChild = document.body.children.length;
@@ -83,7 +101,7 @@ function showSearchResult(data){
             poster="./assets/images/image-not-available.jpg";
         }
     
-        //omdbGetSingleMovieDetails(data['Search'][i]['imdbID']);
+        omdbGetSingleMovieDetails(data['Search'][i]['imdbID']);
 
 
 
