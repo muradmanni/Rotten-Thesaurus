@@ -30,11 +30,22 @@ document.addEventListener("click",checkPaginationClick);
 
 function toggleSearchButton(){
     var totalChild = document.body.children.length;
-    textboxSearch.value.length>0 ? btnSearch.disabled=false :btnSearch.disabled=true;
+    if (textboxSearch.value.length>0)
+    {
+        btnSearch.disabled=false
+    }
+    else{
+        btnSearch.disabled=true;
+        removeSearchAndPagination();
+        sectionSearch.setAttribute("class","hero is-fullheight");
+    }
+    // textboxSearch.value.length>0 ? btnSearch.disabled=false :btnSearch.disabled=true;
 }
 
 
+
 btnSearch.disabled = true;
+
 
 function searchMovie(event){
     event.preventDefault();
@@ -311,6 +322,14 @@ function checkPaginationClick(event){
     }
     localStorage.setItem("currentPage",pageNumber); 
 }
+
+
+function init(){
+    btnSearch.disabled = true;
+    //getSearchHistory(); 
+}
+
+init();
 
 const options = { // code provided by API docs
 	method: 'GET',
