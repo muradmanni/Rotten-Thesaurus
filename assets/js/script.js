@@ -14,7 +14,7 @@ var totalMovies;
 
 btnSearch.addEventListener("click",searchMovie);
 textboxSearch.addEventListener("keyup", toggleSearchButton);
-
+document.addEventListener("click",checkPaginationClick);
 
 function toggleSearchButton(){
     var totalChild = document.body.children.length;
@@ -282,4 +282,17 @@ function generatePagination(){
 function getCurrentPageNumber()
 {
     return parseInt(localStorage.getItem("currentPage"));
+}
+
+function checkPaginationClick(event){
+    //console.log(event.target);
+    if((event.target).className==="pagination-link")
+    {
+        if (typeof(parseInt((event.target).textContent))==="number")
+        {
+            pageNumber=(event.target).textContent
+            omdbSearchTitle(textboxSearch.value,pageNumber);
+        }
+    }
+    localStorage.setItem("currentPage",pageNumber); 
 }
