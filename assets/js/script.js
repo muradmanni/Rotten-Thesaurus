@@ -12,8 +12,12 @@ var pageNumber;
 var totalPages;
 var totalMovies;
 
-// --------------------- EVENT LISTENER -------------------
 
 btnSearch.addEventListener("click",searchMovie);
 textboxSearch.addEventListener("keyup", toggleSearchButton);
+
+function toggleSearchButton(){
+    var totalChild = document.body.children.length;
+    textboxSearch.value.length>0 ? btnSearch.disabled=false :btnSearch.disabled=true;
+}
 
