@@ -6,11 +6,12 @@ var triggerWarnings2 = ["Contains racial slurs", "Contains depictions of sexual 
 
 var triggerWarningsConcat = triggerWarnings1.concat(triggerWarnings2); // joins the arrays together.
 
-var commonMovieTitleWords = ["The", "a", "I", "An", "You", "Of", "and", "in", "to", "We", "On", "Me", "Be", "Go", "No", "Is", "1", "Two", "2", "II", "One", "It", "It's", "for", "Her", "When", "They", "My", "Three", "3", "III", "Who", "With", "Up", "Your", "Not", "at", "His", "That", "Was", "All", "This", "by", "First", "Back", "Only", "Get"]; // Commonly used words in movie titles
+var commonMovieTitleWords = ["the", "a", "i", "an", "you", "of", "and", "in", "to", "we", "on", "me", "be", "go", "no", "is", "1", "two", "2", "ii", "one", "it", "it's", "for", "her", "when", "they", "my", "three", "3", "iii", "who", "with", "up", "your", "not", "at", "his", "that", "was", "all", "this", "by", "first", "back", "only", "get"]; // Commonly used words in movie titles
 
 var btnSearch = document.querySelector("#btn-search");
 var sectionSearch = document.querySelector("#section-search");
 var textboxSearch = document.querySelector("#textbox-search");
+var searchMovieFormEl = document.querySelector("#search-movie-form");
 
 
 var omdbApiKey="ef78856e";
@@ -53,6 +54,8 @@ function searchMovie(event){
     omdbSearchTitle(textboxSearch.value,1);
     
     sectionSearch.setAttribute("class","hero");
+
+    wordsGenerator(); // needs to be put here, do not place in the function that responds to keyup.
 }
 
 function omdbSearchTitle(movieTitle,page){
@@ -333,16 +336,21 @@ function init(){
 init();
 
 function wordsGenerator() {
-    var wordsSplit = textboxSearch.value.split(" "); // splits the title entered by each word
-    
+    var lowerCase = textboxSearch.value.toLowerCase(); // have to make strings lowercase to make sure includes() works
+    var wordsSplit = lowerCase.split(" "); // splits the title entered by each word
+    console.log(wordsSplit);
     var wordsCollected = [];
     
-    if (!wordsSplit.includes(commonMovieTitleWords)){
-        wordsCollected.push(wordsSplit)
-        console.log(wordsCollected);
-        console.log(wordsSplit);
+    for (var i = 0; i < wordsSplit.length; i++) {
+        // if (!wordsSplit[i].includes(commonMovieTitleWords)){ if done this way it won't work at all
+        if (!commonMovieTitleWords.includes(wordsSplit[i])){ // must be in this order, if the array includes indexed string referenced then do...
+            wordsCollected.push(wordsSplit[i])
+            console.log(wordsCollected);
+            // console.log(wordsSplit);
+        }
+        
     }
-    
+    return useWords(wordsCollected); // to return the array to be able to use it in the useWords function
 }
 
 
@@ -357,16 +365,21 @@ const options = { // code provided by API docs
 // these are two different calls below, the code currently written as is will make two calls
 
 // to get a random word: GET https://wordsapiv1.p.mashape.com/words?random=true
-fetch('https://wordsapiv1.p.rapidapi.com/words/' + randomWordGenerator, options) // code provided by API docs
-	.then(response => response.json())
-	.then(response => console.log(response))
-	.catch(err => console.error(err));
+// fetch('https://wordsapiv1.p.rapidapi.com/words/' + randomWordGenerator, options) // code provided by API docs
+// 	.then(response => response.json())
+// 	.then(response => console.log(response))
+// 	.catch(err => console.error(err));
 
-// to get a word you input: GET https://wordsapiv1.p.mashape.com/words/{word}
-fetch('https://wordsapiv1.p.rapidapi.com/words/' + enteredInput, options) // code provided by API docs
-	.then(response => response.json())
-	.then(response => console.log(response))
-	.catch(err => console.error(err));
+function useWords(wordsCollected) {
+    if (wordsCollected !== null)    
+        for (var i = 0; i < wordsCollected.length; i++) { 
+        // to get a word you input: GET https://wordsapiv1.p.mashape.com/words/{word}
+        fetch('https://wordsapiv1.p.rapidapi.com/words/' + wordsCollected[i], options) // code provided by API docs
+            .then(response => response.json())
+            .then(response => console.log(response))
+            .catch(err => console.error(err));
+        }
+}
 
 // word details that can appear in JSON Format, see docs: https://www.wordsapi.com/docs/#get-word-details
 
