@@ -31,6 +31,12 @@ img{
     height: 304px;
 }
 
+@media only screen and (max-width: 600px) {
+    .search-box{
+        width: 100%;
+    }
+}
+
 .cursor{
     cursor: pointer;
 }
@@ -38,6 +44,7 @@ img{
 .search-box{
     width: 40%;
 }
+
 #btn-search.button.is-primary {
     background: orange;
 }
