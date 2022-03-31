@@ -44,3 +44,11 @@ img{
 .box {
     font-size: large;
 }
+.notification.is-primary {
+    background-color: rgb(232,232,232);
+    color: #fff;
+}
+
+h3.title.is-6 {
+    color: darkslategrey;
+}
