@@ -6,6 +6,8 @@ var triggerWarnings2 = ["Contains racial slurs", "Contains depictions of sexual 
 
 var triggerWarningsConcat = triggerWarnings1.concat(triggerWarnings2); // joins the arrays together.
 
+var commonMovieTitleWords = ["The", "a", "I", "An", "You", "Of", "and", "in", "to", "We", "On", "Me", "Be", "Go", "No", "Is", "1", "Two", "2", "II", "One", "It", "It's", "for", "Her", "When", "They", "My", "Three", "3", "III", "Who", "With", "Up", "Your", "Not", "at", "His", "That", "Was", "All", "This", "by", "First", "Back", "Only", "Get"]; // Commonly used words in movie titles
+
 var btnSearch = document.querySelector("#btn-search");
 var sectionSearch = document.querySelector("#section-search");
 var textboxSearch = document.querySelector("#textbox-search");
@@ -329,6 +331,20 @@ function init(){
 }
 
 init();
+
+function wordsGenerator() {
+    var wordsSplit = textboxSearch.value.split(" "); // splits the title entered by each word
+    
+    var wordsCollected = [];
+    
+    if (!wordsSplit.includes(commonMovieTitleWords)){
+        wordsCollected.push(wordsSplit)
+        console.log(wordsCollected);
+        console.log(wordsSplit);
+    }
+    
+}
+
 
 const options = { // code provided by API docs
 	method: 'GET',
