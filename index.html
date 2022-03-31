@@ -4,25 +4,25 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
+    <link rel="stylesheet" href="./assets/css/style.css">
     <title>Document</title>
 </head>
 <body>
-    <div class="search">
-        <form id="search-form">
-            <input id="search-input" placeholder="Enter movie title here">
-            <button class="button">search</button>
-
-    
-
-
-    
-
-        </form>
-
-    </div>
-    <div class="container">
-
-
-    </div>
-</body>
+    <section class="hero is-fullheight" id="section-search">
+        <div class="hero-body has-text-centered">
+          <div class="container">
+            <div class="box">Search Movie
+                <form id="search-movie-form">
+                    <input class="input is-rounded search-box" type="text" id="textbox-search" placeholder="Please enter movie titile">
+                    <button class="button is-primary" id="btn-search">Go!</button>
+                </form>
+            </div>
+          </div>
+        </div>
+      </section>
+      
+    </body>
+    <script src="./assets/js/script.js"></script>
 </html>
