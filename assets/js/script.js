@@ -68,6 +68,24 @@ function omdbGetSingleMovieDetails(omdbid){
       });
 }
 
+function removeSearchAndPagination(){
+    var sectionMovieResultPre = document.querySelector("#section-movie-result");
+    const t = document.body.getElementsByClassName("display-result");
+    if (sectionMovieResultPre !== null)
+    {   
+        document.body.removeChild(sectionMovieResultPre);
+        
+
+        var sectionPagination = document.querySelector("#section-pagination");
+        if (sectionPagination!==null)
+        {
+            // alert("i am in");
+            document.body.removeChild(sectionPagination);
+
+        }
+    }
+}
+
 function showSearchResult(data){
     //console.log(data);
     // var totalChild = document.body.children.length;
@@ -75,7 +93,7 @@ function showSearchResult(data){
     //
     
     
-    //removeSearchAndPagination();
+    removeSearchAndPagination();
 
     totalMovies=data["totalResults"];
     calculateTotalPages(totalMovies);
