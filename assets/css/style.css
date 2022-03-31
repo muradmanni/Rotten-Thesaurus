@@ -34,5 +34,6 @@ img{
 @media only screen and (max-width: 600px) {
     .search-box{
         width: 100%;
+        margin-bottom: 10px;
     }
 }
