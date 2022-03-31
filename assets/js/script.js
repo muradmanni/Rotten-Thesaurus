@@ -130,3 +130,120 @@ function calculateTotalPages(totalMovies){
     }
     console.log("Total Movies " + totalMovies + "     totalPages " +totalPages);
 }
+
+function generatePagination(){
+    var loopStartingInt;
+    var loopFinishingInt;
+    pageNumber=getCurrentPageNumber();
+    
+    if (isNaN(pageNumber))
+    {
+        pageNumber=1;
+    }
+
+    var sectionPagination =document.createElement("section");
+    sectionPagination.setAttribute("id","section-pagination");
+
+    var navElement = document.createElement("nav");
+    navElement.className="pagination is-centered";
+    navElement.setAttribute("role","navigation");
+    
+    var ulElement = document.createElement("ul");
+    ulElement.className="pagination-list";
+
+    var liElement;
+    var aElement;
+
+    if (totalPages<=8)
+    {
+        loopStartingInt=2;
+        loopFinishingInt=totalPages;
+    }
+    else
+    {
+        if(pageNumber<4)
+        {
+            loopStartingInt=2;
+            loopFinishingInt=5;
+        }
+        else if(pageNumber<=(totalPages-3))
+        {
+            
+            loopStartingInt=pageNumber-1;
+            loopFinishingInt=pageNumber+2;
+        }
+        else{
+            loopStartingInt=totalPages-3;
+            loopFinishingInt=totalPages;
+        }
+    }
+    // alert("Page number is = " + pageNumber + "    Loop start Int is " + loopStartingInt);ts
+
+    liElement = document.createElement("li");            
+    aElement=document.createElement("a");
+    aElement.className="pagination-link";
+    aElement.setAttribute("data-label","1");
+    aElement.textContent=1;
+    liElement.appendChild(aElement);
+    ulElement.appendChild(liElement);
+ 
+    
+    
+    if (pageNumber>3 && totalPages>8){
+        liElement = document.createElement("li");
+        aElement=document.createElement("a");
+        aElement.className="pagination-ellipsis";
+        aElement.textContent="...";
+        liElement.appendChild(aElement);
+        ulElement.appendChild(liElement);
+    }
+        //for(var i=loopStartingInt; i<(loopStartingInt+loopFinishingInt); i++){    
+        for(var i=loopStartingInt; i<(loopFinishingInt); i++){    
+                liElement = document.createElement("li");            
+                aElement=document.createElement("a");
+                aElement.className="pagination-link";
+                aElement.setAttribute("data-label",i);
+                aElement.textContent=i;
+            
+            liElement.appendChild(aElement);
+            ulElement.appendChild(liElement);
+        }
+    
+    if (pageNumber<(totalPages-2) && totalPages>8){
+        liElement = document.createElement("li");
+        aElement=document.createElement("a");
+        aElement.className="pagination-ellipsis";
+        aElement.textContent="...";
+        liElement.appendChild(aElement);
+        ulElement.appendChild(liElement);
+    }
+
+    liElement = document.createElement("li");            
+    aElement=document.createElement("a");
+    aElement.className="pagination-link";
+    aElement.setAttribute("data-label",totalPages);
+    aElement.textContent=totalPages;
+    liElement.appendChild(aElement);
+    ulElement.appendChild(liElement);
+
+
+    navElement.appendChild(ulElement);
+    sectionPagination.appendChild(navElement);
+    document.body.appendChild(sectionPagination);
+    var test = document.getElementsByClassName("pagination-link");
+    console.log(test.length);
+    
+    for (var i=0; i<test.length; i++)
+    {
+        if(pageNumber== test[i].getAttribute("data-label"))
+        {
+            test[i].className="pagination-link is-current";
+        }
+
+    }
+}
+
+function getCurrentPageNumber()
+{
+    return parseInt(localStorage.getItem("currentPage"));
+}
