@@ -60,7 +60,7 @@ function showSearchResult(data){
     //removeSearchAndPagination();
 
     totalMovies=data["totalResults"];
-    //calculateTotalPages(totalMovies);
+    calculateTotalPages(totalMovies);
     
 
     var sectionMovieResult=document.createElement("section");
@@ -113,4 +113,20 @@ function showSearchResult(data){
     document.body.appendChild(sectionMovieResult);
 
     //console.log("after creating : " + document.body.children.length);
+}
+
+function calculateTotalPages(totalMovies){
+    totalPages = Math.floor(totalMovies / 10);
+    
+
+    if (totalMovies%10>0)
+    {
+        totalPages++;
+    }
+    
+    if (totalPages>1)
+    {
+        generatePagination();
+    }
+    console.log("Total Movies " + totalMovies + "     totalPages " +totalPages);
 }
