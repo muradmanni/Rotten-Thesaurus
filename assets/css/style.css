@@ -1,3 +1,39 @@
 .search-box{
     width: 40%;
 }
+
+.search-image-box{
+    height: 280px;
+}
+
+img{
+    position: relative;
+    max-width: 150px;
+    max-height: 222.5px;
+    height: 222.5px;
+ /* width: 50px; */
+}
+
+.display-result{
+    margin: 15px;
+    ;
+}
+
+.modal-content-width{
+    width: 50px;
+}
+
+.notification{
+    height: 304px;
+}
+
+.cursor{
+    cursor: pointer;
+}
+
+@media only screen and (max-width: 600px) {
+    .search-box{
+        width: 100%;
+    }
+
+}
