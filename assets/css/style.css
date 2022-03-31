@@ -31,18 +31,8 @@ img{
     height: 304px;
 }
 
-@media only screen and (max-width: 600px) {
-    .search-box{
-        width: 100%;
-    }
-}
-
 .cursor{
     cursor: pointer;
-}
-
-.search-box{
-    width: 40%;
 }
 
 #btn-search.button.is-primary {
@@ -58,4 +48,10 @@ img{
 
 h3.title.is-6 {
     color: darkslategrey;
+}
+
+@media only screen and (max-width: 600px) {
+    .search-box{
+        width: 100%;
+    }
 }
