@@ -371,13 +371,32 @@ const options = { // code provided by API docs
 // 	.catch(err => console.error(err));
 
 function useWords(wordsCollected) {
+    wordsChanged = [];
+
     if (wordsCollected !== null)    
         for (var i = 0; i < wordsCollected.length; i++) { 
         // to get a word you input: GET https://wordsapiv1.p.mashape.com/words/{word}
         fetch('https://wordsapiv1.p.rapidapi.com/words/' + wordsCollected[i], options) // code provided by API docs
-            .then(response => response.json())
-            .then(response => console.log(response))
-            .catch(err => console.error(err));
+            // .then(response => response.json())
+            // .then(response => console.log(response))
+            // .catch(err => console.error(err))
+
+            .then(function (response) {
+                return response.json();
+            })
+            .then(function (data) {
+                console.log(data);
+                if (data["results"][0]["synonyms"] !== null) {
+                    wordsChanged.push(data["results"][0]["synonyms"][0])
+                    console.log(wordsChanged);
+                } else if (data["results"][0]["antonyms"] !== null) {
+                    wordsChanged.push(data["results"][0]["antonyms"][0])
+                    console.log(wordsChanged);
+                } else if (data["results"][0]["typeOf"] !== null) {
+                    wordsChanged.push(data["results"][0]["typeOf"][0])
+                    console.log(wordsChanged);
+                }
+            })
         }
 }
 
