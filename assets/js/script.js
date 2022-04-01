@@ -20,7 +20,9 @@ var omdbApiKey="ef78856e";
 var omdbUrl ="https://www.omdbapi.com/?apikey=" + omdbApiKey + "&type=movie&s=";
 var omdbSingleSearchUrl = "https://www.omdbapi.com/?apikey=" + omdbApiKey + "&i="
 
-
+var modal = document.querySelector("#modal");
+var modalErrorMessageSpan = document.querySelector("#error-message");
+var modalCloseButton = document.querySelector("#btn-modal-close");
 // ------------------------- Variables used to perform and maintain pagination -------------------------
 var pageNumber;
 var totalPages;
@@ -32,6 +34,7 @@ var enteredInput = "test"; // form-input.value is supposed to be entered here, n
 btnSearch.addEventListener("click",searchMovie);
 textboxSearch.addEventListener("keyup", toggleSearchButton);
 document.addEventListener("click",checkPaginationClick);
+modalCloseButton.addEventListener("click",closeModalDialog);
 
 function toggleSearchButton(){
     //var totalChild = document.body.children.length;
@@ -49,8 +52,6 @@ function toggleSearchButton(){
 function searchMovie(event){
     event.preventDefault();
     omdbSearchTitle(textboxSearch.value,1);
-    
-    sectionSearch.setAttribute("class","hero");
 }
 
 function omdbSearchTitle(movieTitle,page){
@@ -61,8 +62,11 @@ function omdbSearchTitle(movieTitle,page){
             if (data["Response"]==="False"){
                 console.log("Not Found");
                 //CHANGE console log to MODAL display
+                modal.className="modal is-active";
+                modalErrorMessageSpan.textContent= movieTitle + " not found on IMDB, please check the movie title and search again.";
             }
             else{
+                sectionSearch.setAttribute("class","hero");
                 if (!movieSearchHistory.includes(movieTitle.toLowerCase()))
                 {
                     movieSearchHistory.push(movieTitle.toLowerCase());
@@ -380,6 +384,11 @@ function init(){
 
 init();
 
+/// ---------------------------------- FUNCTION TO CLOSE MODAL (ERROR DISPLAYED WHEN SEARCHED MOVIE NOT FOUND) ---------------
+function closeModalDialog(){
+    modal.className="modal";
+    //console.log("its clicking");
+}
 
 const options = { // code provided by API docs
 	method: 'GET',
