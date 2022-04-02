@@ -8,16 +8,25 @@ var triggerWarningsConcat = triggerWarnings1.concat(triggerWarnings2); // joins 
 
 var commonMovieTitleWords = ["the", "a", "i", "an", "you", "of", "and", "in", "to", "we", "on", "me", "be", "go", "no", "is", "1", "two", "2", "ii", "one", "it", "it's", "for", "her", "when", "they", "my", "three", "3", "iii", "who", "with", "up", "your", "not", "at", "his", "that", "was", "all", "this", "by", "first", "back", "only", "get"]; // Commonly used words in movie titles
 
+
 var btnSearch = document.querySelector("#btn-search");
 var sectionSearch = document.querySelector("#section-search");
 var textboxSearch = document.querySelector("#textbox-search");
-var searchMovieFormEl = document.querySelector("#search-movie-form");
+
+var movieSearchHistory = [];
+var movieSearchHistoryLength;
+var bd = $('body');
 
 
+//------------ API key (murad) to access OMBD API
 var omdbApiKey="ef78856e";
 var omdbUrl ="https://www.omdbapi.com/?apikey=" + omdbApiKey + "&type=movie&s=";
 var omdbSingleSearchUrl = "https://www.omdbapi.com/?apikey=" + omdbApiKey + "&i="
 
+var modal = document.querySelector("#modal");
+var modalErrorMessageSpan = document.querySelector("#error-message");
+var modalCloseButton = document.querySelector("#btn-modal-close");
+// ------------------------- Variables used to perform and maintain pagination -------------------------
 var pageNumber;
 var totalPages;
 var totalMovies;
@@ -25,13 +34,13 @@ var totalMovies;
 var randomWordGenerator = "?random=true"; // parameter for generating random words
 var enteredInput = "test"; // form-input.value is supposed to be entered here, not a string.
 
-
 btnSearch.addEventListener("click",searchMovie);
 textboxSearch.addEventListener("keyup", toggleSearchButton);
 document.addEventListener("click",checkPaginationClick);
+modalCloseButton.addEventListener("click",closeModalDialog);
 
 function toggleSearchButton(){
-    var totalChild = document.body.children.length;
+    //var totalChild = document.body.children.length;
     if (textboxSearch.value.length>0)
     {
         btnSearch.disabled=false
@@ -41,13 +50,7 @@ function toggleSearchButton(){
         removeSearchAndPagination();
         sectionSearch.setAttribute("class","hero is-fullheight");
     }
-    // textboxSearch.value.length>0 ? btnSearch.disabled=false :btnSearch.disabled=true;
 }
-
-
-
-btnSearch.disabled = true;
-
 
 function searchMovie(event){
     event.preventDefault();
@@ -56,6 +59,7 @@ function searchMovie(event){
     sectionSearch.setAttribute("class","hero");
 
     useWords(); // needs to be put here, do not place in the function that responds to keyup.
+
 }
 
 function omdbSearchTitle(movieTitle,page){
@@ -66,8 +70,16 @@ function omdbSearchTitle(movieTitle,page){
             if (data["Response"]==="False"){
                 console.log("Not Found");
                 //CHANGE console log to MODAL display
+                modal.className="modal is-active";
+                modalErrorMessageSpan.textContent= movieTitle + " not found on IMDB, please check the movie title and search again.";
             }
             else{
+                sectionSearch.setAttribute("class","hero");
+                if (!movieSearchHistory.includes(movieTitle.toLowerCase()))
+                {
+                    movieSearchHistory.push(movieTitle.toLowerCase());
+                }
+                localStorage.setItem("searchHistory", JSON.stringify(movieSearchHistory));
                 localStorage.setItem("currentPage",page);
                 showSearchResult(data);
             }
@@ -116,67 +128,106 @@ function removeSearchAndPagination(){
 }
 
 function showSearchResult(data){
-    //console.log(data);
-    // var totalChild = document.body.children.length;
-    // console.log("before creating : " + document.body.children.length);
-    //
-    
     
     removeSearchAndPagination();
 
     totalMovies=data["totalResults"];
     calculateTotalPages(totalMovies);
     
-
-    var sectionMovieResult=document.createElement("section");
-    sectionMovieResult.setAttribute("id","section-movie-result")
-    sectionMovieResult.className= "hero display-result center-please";
+    // vanila js
+    // var sectionMovieResult=document.createElement("section");
+    // sectionMovieResult.setAttribute("id","section-movie-result")
+    // sectionMovieResult.className= "hero display-result center-please";
     
+    // //jquert
+    var sectionMovieResult = $("<section>");
+    sectionMovieResult.attr("id","section-movie-result")
+    sectionMovieResult.addClass("hero display-result center-please");
+
     //console.log(sectionMovieResult.getAttribute('id'));
-    var searchMovieDivContainer=document.createElement ("div");
-    searchMovieDivContainer.className= "container is-fluid";
-    var searchMovieDivContainerColumn = document.createElement("div");
-    searchMovieDivContainerColumn.className = "columns is-multiline is-centered";
+    // var searchMovieDivContainer=document.createElement ("div");
+    // searchMovieDivContainer.className= "container is-fluid";
+    // var searchMovieDivContainerColumn = document.createElement("div");
+    // searchMovieDivContainerColumn.className = "columns is-multiline is-centered";
+
+    var searchMovieDivContainer= $("<div>");
+    searchMovieDivContainer.addClass("container is-fluid");
+    var searchMovieDivContainerColumn = $("<div>");
+    searchMovieDivContainerColumn.addClass("columns is-multiline is-centered");
         
     for (var i=0; i< data["Search"].length; i++)
     {
         // -------------------- GET VALUES --------------------
         var poster = (data['Search'][i]['Poster']);
         var movieTitle =(data['Search'][i]['Title']);
+        var imdbID =(data['Search'][i]['imdbID']);
         if (poster==="N/A")
         {
             poster="./assets/images/image-not-available.jpg";
         }
     
-        omdbGetSingleMovieDetails(data['Search'][i]['imdbID']);
+        omdbGetSingleMovieDetails(imdbID);
 
 
 
         // ------------------- GENERATE RESULT AND SHOW -------------------
-        var divOutBox = document.createElement("div");
-        divOutBox.className="column is-3-fullhd  is-3-desktop is-6-tablet is-12-mobile";
-        var divInsideBox = document.createElement("div");
-        divInsideBox.className="notification is-primary has-text-centered";
+        // var divOutBox = document.createElement("div");
+        // divOutBox.className="column is-3-fullhd  is-3-desktop is-6-tablet is-12-mobile";
+        // var divInsideBox = document.createElement("div");
+        // divInsideBox.className="notification is-primary has-text-centered";
 
-        var imgMovieImage = document.createElement("img");
-        imgMovieImage.setAttribute("src",poster);
-        imgMovieImage.className="cursor";
+        var divOutBox = $("<div>");
+        divOutBox.addClass("column is-3-fullhd  is-3-desktop is-6-tablet is-12-mobile");
+        var divInsideBox = $("<div>");
+        divInsideBox.addClass("notification is-primary has-text-centered");
 
-        var h3MovieTitle = document.createElement("h3");
-        h3MovieTitle.className = "title is-6 cursor";
-        h3MovieTitle.textContent = movieTitle;
+        // var imgMovieImage = document.createElement("img");
+        // imgMovieImage.setAttribute("id","img-movie");
+        // imgMovieImage.setAttribute("data-id",imdbID);
+        // imgMovieImage.setAttribute("src",poster);
+        // imgMovieImage.className="cursor";
+
+        var imgMovieImage = $("<img>");
+        // imgMovieImage.attr("id","img-movie");
+        imgMovieImage.attr("data-id",imdbID);
+        imgMovieImage.attr("src",poster);
+        imgMovieImage.addClass("cursor img-movie");
+
+        // var h3MovieTitle = document.createElement("h3");
+        // h3MovieTitle.className = "title is-6 curs-or";
+        // h3MovieTitle.setAttribute("id","img-movie");
+        // h3MovieTitle.setAttribute("data-id",imdbID);
+        // h3MovieTitle.textContent = movieTitle;
+
+        var h3MovieTitle =$("<h3>");
+        h3MovieTitle.addClass("title is-6 cursor img-movie");
+        // h3MovieTitle.attr("id","img-movie");
+        h3MovieTitle.attr("data-id",imdbID);
+        h3MovieTitle.text(movieTitle);
         
 
-        divInsideBox.appendChild(imgMovieImage);
-        divInsideBox.appendChild(h3MovieTitle);
-        divOutBox.appendChild(divInsideBox);
+        // divInsideBox.appendChild(imgMovieImage);
+        // divInsideBox.appendChild(h3MovieTitle);
+        // divOutBox.appendChild(divInsideBox);
 
-        searchMovieDivContainerColumn.appendChild(divOutBox);
+        // searchMovieDivContainerColumn.appendChild(divOutBox);
+
+        divInsideBox.append(imgMovieImage);
+        divInsideBox.append(h3MovieTitle);
+        divOutBox.append(divInsideBox);
+
+        searchMovieDivContainerColumn.append(divOutBox);
     }
-    searchMovieDivContainer.appendChild(searchMovieDivContainerColumn);
-    sectionMovieResult.appendChild(searchMovieDivContainer);
-    document.body.appendChild(sectionMovieResult);
+    // searchMovieDivContainer.appendChild(searchMovieDivContainerColumn);
+    // sectionMovieResult.append(searchMovieDivContainer);
+    // document.body.appendChild(sectionMovieResult);
 
+    searchMovieDivContainer.append(searchMovieDivContainerColumn);
+    sectionMovieResult.append(searchMovieDivContainer);
+    bd.append(sectionMovieResult);
+
+    // var movieResultClick= document.querySelector("#img-movie"); 
+    sectionMovieResult.on("click",".img-movie", getMoreDetails);
     //console.log("after creating : " + document.body.children.length);
 }
 
@@ -327,6 +378,12 @@ function checkPaginationClick(event){
     localStorage.setItem("currentPage",pageNumber); 
 }
 
+// ---------- -- ------- CHECK CLICK EVENT ON MOVIE ----------- ------ -----------//
+
+function getMoreDetails(event){
+    var clickedMovie = $(event.target).data("id");
+    console.log(clickedMovie);
+}
 
 function init(){
     btnSearch.disabled = true;
@@ -334,6 +391,12 @@ function init(){
 }
 
 init();
+
+/// ---------------------------------- FUNCTION TO CLOSE MODAL (ERROR DISPLAYED WHEN SEARCHED MOVIE NOT FOUND) ---------------
+function closeModalDialog(){
+    modal.className="modal";
+    //console.log("its clicking");
+}
 
 const options = { // code provided by API docs
 	method: 'GET',
