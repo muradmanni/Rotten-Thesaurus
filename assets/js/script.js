@@ -55,7 +55,7 @@ function searchMovie(event){
     
     sectionSearch.setAttribute("class","hero");
 
-    wordsGenerator(); // needs to be put here, do not place in the function that responds to keyup.
+    useWords(); // needs to be put here, do not place in the function that responds to keyup.
 }
 
 function omdbSearchTitle(movieTitle,page){
@@ -335,25 +335,6 @@ function init(){
 
 init();
 
-function wordsGenerator() {
-    var lowerCase = textboxSearch.value.toLowerCase(); // have to make strings lowercase to make sure includes() works
-    var wordsSplit = lowerCase.split(" "); // splits the title entered by each word
-    console.log(wordsSplit);
-    var wordsCollected = [];
-    
-    for (var i = 0; i < wordsSplit.length; i++) {
-        // if (!wordsSplit[i].includes(commonMovieTitleWords)){ if done this way it won't work at all
-        if (!commonMovieTitleWords.includes(wordsSplit[i])){ // must be in this order, if the array includes indexed string referenced then do...
-            wordsCollected.push(wordsSplit[i])
-            console.log(wordsCollected);
-            // console.log(wordsSplit);
-        }
-        
-    }
-    return useWords(wordsCollected); // to return the array to be able to use it in the useWords function
-}
-
-
 const options = { // code provided by API docs
 	method: 'GET',
 	headers: {
@@ -370,34 +351,131 @@ const options = { // code provided by API docs
 // 	.then(response => console.log(response))
 // 	.catch(err => console.error(err));
 
-function useWords(wordsCollected) {
-    wordsChanged = [];
+function useWords() {
+    var lowerCase = textboxSearch.value.toLowerCase(); // have to make strings lowercase to make sure includes() works
+    var wordsSplit = lowerCase.split(" "); // splits the title entered by each word
+    console.log(wordsSplit.length);
+    var wordsNotChanged = [];
+    var wordsChanged = [];
 
-    if (wordsCollected !== null)    
-        for (var i = 0; i < wordsCollected.length; i++) { 
-        // to get a word you input: GET https://wordsapiv1.p.mashape.com/words/{word}
-        fetch('https://wordsapiv1.p.rapidapi.com/words/' + wordsCollected[i], options) // code provided by API docs
-            // .then(response => response.json())
-            // .then(response => console.log(response))
-            // .catch(err => console.error(err))
+    var wordsChangedChecker = [];
 
-            .then(function (response) {
-                return response.json();
-            })
-            .then(function (data) {
-                console.log(data);
-                if (data["results"][0]["synonyms"] !== null) {
-                    wordsChanged.push(data["results"][0]["synonyms"][0])
-                    console.log(wordsChanged);
-                } else if (data["results"][0]["antonyms"] !== null) {
-                    wordsChanged.push(data["results"][0]["antonyms"][0])
-                    console.log(wordsChanged);
-                } else if (data["results"][0]["typeOf"] !== null) {
-                    wordsChanged.push(data["results"][0]["typeOf"][0])
-                    console.log(wordsChanged);
-                }
-            })
+    for (var j = 0; j < wordsSplit.length; j++) {
+        if (!commonMovieTitleWords.includes(wordsSplit[j])){
+            wordsChangedChecker.push(wordsSplit[j]);
+            console.log(wordsChangedChecker);
         }
+    }
+
+    for (var i = 0; i < wordsSplit.length; i++) {
+        // console.log(i)
+        if (!commonMovieTitleWords.includes(wordsSplit[i])){
+            console.log(i)
+            // to get a word you input: GET https://wordsapiv1.p.mashape.com/words/{word}
+            fetch('https://wordsapiv1.p.rapidapi.com/words/' + wordsSplit[i], options) // code provided by API docs
+                // .then(response => response.json())
+                // .then(response => console.log(response))
+                // .catch(err => console.error(err))
+                .then(function (response) {
+                    return response.json();
+                })
+                .then(function (data) {
+                    console.log(data);
+                    var keysCheck = Object.keys(data)
+                    console.log(keysCheck);
+                    if (keysCheck.includes("results")) {
+                        var resultsCheck = Object.keys(data.results[0])
+                        console.log(resultsCheck);
+                    }
+                    if (keysCheck.includes("results") && resultsCheck.includes("synonyms")) {
+                        console.log(i)
+                        // wordsChanged[i] = data["results"][0]["synonyms"][0];
+                        wordsChanged.push(data["results"][0]["synonyms"][0])
+                        // wordsChanged.unshift(data["results"][0]["synonyms"][0])
+                        // console.log(wordsChanged[i]);
+                        console.log(i)
+                        console.log(wordsChanged);
+                        console.log(wordsChangedChecker.length);
+                        console.log(wordsChanged.length);
+                        if (wordsChangedChecker.length === wordsChanged.length) {
+                            console.log(wordsChangedChecker.length);
+                            console.log(wordsChanged.length);
+                            return joinWords(wordsChanged, wordsNotChanged);
+                        }
+                    } else if (keysCheck.includes("results") && resultsCheck.includes("antonyms")) {
+                        wordsChanged.push(data["results"][0]["antonyms"][0])
+                        console.log(wordsChanged);
+                        if (wordsChangedChecker.length === wordsChanged.length) {
+                            console.log(wordsChangedChecker.length);
+                            console.log(wordsChanged.length);
+                            return joinWords(wordsChanged, wordsNotChanged);
+                        }
+                    } else if (keysCheck.includes("results") && resultsCheck.includes("typeOf")) {
+                        wordsChanged.push(data["results"][0]["typeOf"][0])
+                        console.log(wordsChanged);
+                        if (wordsChangedChecker.length === wordsChanged.length) {
+                            console.log(wordsChangedChecker.length);
+                            console.log(wordsChanged.length);
+                            return joinWords(wordsChanged, wordsNotChanged);
+                        }
+                    } else {
+                        wordsChanged.push(data["word"])
+                        console.log(wordsChanged);
+                        if (wordsChangedChecker.length === wordsChanged.length) {
+                            console.log(wordsChangedChecker.length);
+                            console.log(wordsChanged.length);
+                            return joinWords(wordsChanged, wordsNotChanged);
+                        }
+                    }
+                })
+        } //else {
+        if (commonMovieTitleWords.includes(wordsSplit[i])) {
+            wordsNotChanged[i] = wordsSplit[i];
+            console.log(wordsNotChanged);
+        } else {
+            wordsNotChanged[i] = undefined;
+        }
+            // if (!commonMovieTitleWords.includes(wordsSplit[i+1]) && wordsSplit[i+1] !== undefined) {
+                // console.log(wordsNotChanged);
+            // }
+        // }
+    } 
+}
+
+function joinWords(wordsChanged, wordsNotChanged) {
+    console.log("inside the new function");
+    console.log(wordsNotChanged);
+    console.log(wordsChanged);
+
+    // wordsChanged = wordsChanged.reverse();
+    console.log(wordsChanged);
+
+    console.log("length");
+    console.log(wordsNotChanged.length);
+    console.log(wordsChanged.length);
+
+    var joinedWords = [];
+
+        for (var i = 0; i < wordsNotChanged.length; i++) {
+            if (wordsNotChanged[i] === undefined) {
+                // wordsNotChanged[i] = wordsChanged[i]
+                // joinedWords.push(wordsNotChanged[i])
+                joinedWords.splice(i, 0, wordsChanged[i]);
+                if (wordsNotChanged[i+1] !== undefined) {
+                    wordsChanged.unshift("oops");
+                }
+                console.log(wordsChanged);
+                console.log(joinedWords);
+            } else if (wordsNotChanged[i] !== undefined) {
+                joinedWords.splice(i, 0, wordsNotChanged[i]);  
+                if (wordsChanged[i+1] === undefined) {
+                    wordsChanged.unshift("oops");
+                }                  
+                console.log(joinedWords);
+            }
+        }
+    joinedWords = joinedWords.join(" ");
+    console.log(joinedWords);
 }
 
 // word details that can appear in JSON Format, see docs: https://www.wordsapi.com/docs/#get-word-details
