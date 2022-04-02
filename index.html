@@ -7,6 +7,8 @@
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
     <link rel="stylesheet" href="./assets/css/style.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
+    <script src="https://code.jquery.com/ui/1.13.1/jquery-ui.js"></script>
     <title>Document</title>
 </head>
 <body>
@@ -22,7 +24,22 @@
           </div>
         </div>
       </section>
-      
+      <div class="modal" id="modal">
+        <div class="modal-background"></div>
+        <div class="modal-card">
+          <header class="modal-card-head">
+            <p class="modal-card-title">Not Found</p>
+            
+          </header>
+          <section class="modal-card-body">
+            <span id="error-message"></span>
+          </section>
+          <footer class="modal-card-foot">
+            
+            <button class="button" id="btn-modal-close">Close</button>
+          </footer>
+        </div>
+      </div>
     </body>
     <script src="./assets/js/script.js"></script>
 
