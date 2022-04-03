@@ -93,6 +93,8 @@ function omdbGetSingleMovieDetails(omdbid){
             }
             else{
                 console.log(data);
+                localStorage.setItem(omdbid,JSON.stringify(data));
+                return data;
             }
           });
         } else {
@@ -117,6 +119,7 @@ function removeSearchAndPagination(){
 
         }
     }
+    document.body.setAttribute("min-height","100%")
 }
 
 function showSearchResult(data){
@@ -146,7 +149,7 @@ function showSearchResult(data){
     searchMovieDivContainer.addClass("container is-fluid");
     var searchMovieDivContainerColumn = $("<div>");
     searchMovieDivContainerColumn.addClass("columns is-multiline is-centered");
-        
+    
     for (var i=0; i< data["Search"].length; i++)
     {
         // -------------------- GET VALUES --------------------
@@ -158,9 +161,10 @@ function showSearchResult(data){
             poster="./assets/images/image-not-available.jpg";
         }
     
-        omdbGetSingleMovieDetails(imdbID);
-
-
+        //--------------------   REQUESTIN TO FETCH and STORING ALL INDIVIDUAL RESULT IN LOCALSTORAGE -----------
+        var individualMovieDetails = omdbGetSingleMovieDetails(imdbID);
+        
+        //-------------------------------------------------------------------------------------------------------
 
         // ------------------- GENERATE RESULT AND SHOW -------------------
         // var divOutBox = document.createElement("div");
@@ -375,6 +379,70 @@ function checkPaginationClick(event){
 function getMoreDetails(event){
     var clickedMovie = $(event.target).data("id");
     console.log(clickedMovie);
+    var SingleMovieDetails = (JSON.parse(localStorage.getItem(clickedMovie)));
+    console.log(SingleMovieDetails);
+    console.log(SingleMovieDetails["Title"]);
+    removeSearchAndPagination();
+
+    // <section >
+    //     <div class="container">
+    //       <div class="columns is-multiline">
+    //         <div class="column notification test is-3 is-3-fullhd is-3-desktop is-6-tablet is-12-mobile">
+    //           <img>
+    //           <h3></h3>
+    //         </div>
+    //         <div class="column test is-9 is-9-fullhd is-9-desktop is-6-tablet is-12-mobile">
+    //           <h2></h2>
+    //         </div>
+    //       </div>
+    //     </div>
+    //   </section>
+    bd.addClass("is-fullheight");
+    var sectionSingleMovieResult = $("<section>");
+    sectionSingleMovieResult.addClass("hero display-result center-please");
+    sectionSingleMovieResult.attr("id","section-movie-result")
+    var divSingleMovieContainer = $("<div>");
+    divSingleMovieContainer.addClass("container is-fluid");
+    //divSingleMovieContainer.
+
+    var divSingleMovieColumns = $("<div>");
+    divSingleMovieColumns.addClass("columns  is-multiline is-centered");
+    var divSingleMovieColumnNotification = $("<div>");
+    divSingleMovieColumnNotification.addClass("column notification test is-3 is-3-fullhd is-3-desktop is-6-tablet is-12-mobile");
+    var imageMovie = $("<img>");
+    imageMovie.attr("src",SingleMovieDetails['Poster']==='N/A'? "./assets/images/image-not-available.jpg":SingleMovieDetails['Poster']);
+
+    divSingleMovieColumnNotification.append(imageMovie);
+    divSingleMovieColumns.append(divSingleMovieColumnNotification);
+
+    var divSingleMovieColumnNotification = $("<div>");
+    divSingleMovieColumnNotification.addClass("column test is-9 is-9-fullhd is-9-desktop is-6-tablet is-12-mobile");
+    var divSingleMovieOrderedList = $("<ol>");
+        var divSingleMovieOrderedListItemTitle = $("<li>");
+        divSingleMovieOrderedListItemTitle.text("Title ---> " + SingleMovieDetails["Title"]);
+
+        var divSingleMovieOrderedListItemPlot = $("<li>");
+        divSingleMovieOrderedListItemPlot.text("Plot ---> " + SingleMovieDetails["Plot"]);
+
+    divSingleMovieOrderedList.append(divSingleMovieOrderedListItemTitle);    
+    divSingleMovieOrderedList.append(divSingleMovieOrderedListItemPlot);
+
+    divSingleMovieColumnNotification.append(divSingleMovieOrderedList);
+    divSingleMovieColumns.append(divSingleMovieColumnNotification);
+
+    var divSingleMovieContainerBack = $("<div>");
+    divSingleMovieContainerBack.addClass("container is-fluid");
+
+    var divSingleMovieBackButton = $("<button>");
+    divSingleMovieBackButton.addClass("button is-primary");
+    divSingleMovieBackButton.attr("id","btn-back");
+    divSingleMovieBackButton.text("Back");
+
+    divSingleMovieContainerBack.append(divSingleMovieBackButton);
+    divSingleMovieContainer.append(divSingleMovieColumns);
+    sectionSingleMovieResult.append(divSingleMovieContainer);
+    sectionSingleMovieResult.append(divSingleMovieContainerBack);
+    bd.append(sectionSingleMovieResult);
 }
 
 function init(){
