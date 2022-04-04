@@ -57,8 +57,6 @@ function searchMovie(event){
     omdbSearchTitle(textboxSearch.value,1);
     
     sectionSearch.setAttribute("class","hero");
-
-    useWords(); // needs to be put here, do not place in the function that responds to keyup.
 }
 
 function omdbSearchTitle(movieTitle,page){
@@ -391,6 +389,9 @@ function getMoreDetails(event){
     console.log(SingleMovieDetails["Title"]);
     removeSearchAndPagination();
 
+    useWords(SingleMovieDetails["Title"]); // needs to be put here, do not place in the function that responds to keyup.
+    
+
     // <section >
     //     <div class="container">
     //       <div class="columns is-multiline">
@@ -473,12 +474,13 @@ const options = { // code provided by API docs
 	}
 };
 
-function useWords() { // calls wordsAPI to change words which will generate title
-    var lowerCase = textboxSearch.value.toLowerCase(); // have to make strings lowercase to make sure includes() list works correctly
+function useWords(SingleMovieDetails) { // calls wordsAPI to change words which will generate title
+    var lowerCase = SingleMovieDetails.toLowerCase(); // have to make strings lowercase to make sure includes() list works correctly
     var wordsSplit = lowerCase.split(" "); // splits the title entered by each word
 
     var wordsNotChanged = []; // empty array
     var wordsChanged = []; // empty array
+    var wordsChangedObject = {};
 
     var wordsChangedChecker = []; // empty array, checks array length
 
@@ -488,7 +490,7 @@ function useWords() { // calls wordsAPI to change words which will generate titl
         }
     }
 
-    for (var i = 0; i < wordsSplit.length; i++) { // puts each word into an if statement to make a fetch call or not and fill arrays
+    for (let i = 0; i < wordsSplit.length; i++) { // puts each word into an if statement to make a fetch call or not and fill arrays
         
         if (!commonMovieTitleWords.includes(wordsSplit[i])){
             fetch('https://wordsapiv1.p.rapidapi.com/words/' + wordsSplit[i], options) // to get a word you input: GET https://wordsapiv1.p.mashape.com/words/{word}
@@ -496,9 +498,24 @@ function useWords() { // calls wordsAPI to change words which will generate titl
                 // .then(response => console.log(response))
                 // .catch(err => console.error(err))
                 .then(function (response) {
-                    return response.json();
+                    if (response.status >= 400) {
+                        wordsChangedObject[i] = wordsSplit[i]; // to put words not used in the words API into another array
+                        // var wordsChanged = Object.values(wordsChangedObject);
+                        return
+                    } else {
+                        return response.json();
+                    }
                 })
                 .then(function (data) {
+                    if (!data) {
+                        var wordsChanged = Object.values(wordsChangedObject);
+                        console.log({wordsChangedObject, wordsChangedChecker, wordsNotChanged});
+                        if (wordsChangedChecker.length === wordsChanged.length) { // Has to be placed here in the for loop or else the function won't call correctly
+                            return joinWords(wordsChanged, wordsNotChanged); // takes the variables to use them in the next function
+                        } else {
+                            return
+                        }
+                    }
                     // console.log(data);
                     var keysCheck = Object.keys(data); // gets the object key names from the call 
                     // console.log(keysCheck);
@@ -507,26 +524,26 @@ function useWords() { // calls wordsAPI to change words which will generate titl
                         // console.log(resultsCheck);
                     }
                     if (keysCheck.includes("results") && resultsCheck.includes("synonyms")) { // checks that those keys are in the object
-                        wordsChanged.push(data["results"][0]["synonyms"][0]); // pushes the first synonym of the first result into wordsChanged
-                        // console.log(wordsChanged);
+                        wordsChangedObject[i] = data["results"][0]["synonyms"][0]; // pushes the first synonym of the first result into wordsChanged
+                        var wordsChanged = Object.values(wordsChangedObject);
                         if (wordsChangedChecker.length === wordsChanged.length) { // Has to be placed here in the for loop or else the function won't call correctly
                             return joinWords(wordsChanged, wordsNotChanged); // takes the variables to use them in the next function
                         }
                     } else if (keysCheck.includes("results") && resultsCheck.includes("antonyms")) { // checks that those keys are in the object
-                        wordsChanged.push(data["results"][0]["antonyms"][0]); // pushes the first antonym of the first result into wordsChanged
-                        // console.log(wordsChanged);
+                        wordsChangedObject[i] = (data["results"][0]["antonyms"][0]); // pushes the first antonym of the first result into wordsChanged
+                        var wordsChanged = Object.values(wordsChangedObject);
                         if (wordsChangedChecker.length === wordsChanged.length) { // Has to be placed here in the for loop or else the function won't call correctly
                             return joinWords(wordsChanged, wordsNotChanged); // takes the variables to use them in the next function
                         }
                     } else if (keysCheck.includes("results") && resultsCheck.includes("typeOf")) { // checks that those keys are in the object
-                        wordsChanged.push(data["results"][0]["typeOf"][0]); // pushes the first typeOf of the first result into wordsChanged
-                        // console.log(wordsChanged);
+                        wordsChangedObject[i] = (data["results"][0]["typeOf"][0]); // pushes the first typeOf of the first result into wordsChanged
+                        var wordsChanged = Object.values(wordsChangedObject);
                         if (wordsChangedChecker.length === wordsChanged.length) { // Has to be placed here in the for loop or else the function won't call correctly
                             return joinWords(wordsChanged, wordsNotChanged); // takes the variables to use them in the next function
                         }
                     } else {
-                        wordsChanged.push(data["word"]); // returns the original word entered
-                        // console.log(wordsChanged);
+                        wordsChangedObject[i] = (data["word"]); // returns the original word entered
+                        var wordsChanged = Object.values(wordsChangedObject);
                         if (wordsChangedChecker.length === wordsChanged.length) { // Has to be placed here in the for loop or else the function won't call correctly
                             return joinWords(wordsChanged, wordsNotChanged); // takes the variables to use them in the next function
                         }
@@ -544,8 +561,8 @@ function useWords() { // calls wordsAPI to change words which will generate titl
 }
 
 function joinWords(wordsChanged, wordsNotChanged) { // we get the words for the movie title after changing it and put it back together
-    // wordsChanged = wordsChanged.reverse(); // not useful when I can't control the order of the server data results
-
+console.log(wordsChanged);
+console.log(wordsNotChanged);
     var joinedWords = []; // empty array for joining the words
 
         for (var i = 0; i < wordsNotChanged.length; i++) { // checks the length of wordsNotChanged array because that contains the correct length
@@ -575,6 +592,27 @@ function joinWords(wordsChanged, wordsNotChanged) { // we get the words for the 
     console.log(joinedWords); // to be commented out once the following below occurs
     // insert.textContent <here> = joinedWords // puts the string onto the page
 }
+
+function triggerWarnings() {
+    var triggers = []
+
+    var firstRoll = Math.ceil(Math.random() * 4);
+    console.log(firstRoll);
+    
+    for (let i = 0; i < firstRoll; i++) {
+       var index = Math.floor(Math.random() * triggerWarningsConcat.length);
+       if(!triggers.includes(index)) {
+           triggers.push(triggerWarningsConcat[index]);
+       } else {
+        var index2 = Math.floor(Math.random() * triggerWarningsConcat.length);
+        triggers.push(triggerWarningsConcat[index2]);
+       }
+        
+        console.log(triggers)
+    }
+}
+
+triggerWarnings();
 
 // word details that can appear in JSON Format, see docs: https://www.wordsapi.com/docs/#get-word-details
 
