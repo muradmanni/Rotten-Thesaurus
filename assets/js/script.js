@@ -466,6 +466,7 @@ function closeModalDialog(){
     //console.log("its clicking");
 }
 
+// words API related code
 const options = { // code provided by API docs
 	method: 'GET',
 	headers: {
@@ -479,8 +480,7 @@ function useWords(SingleMovieDetails) { // calls wordsAPI to change words which 
     var wordsSplit = lowerCase.split(" "); // splits the title entered by each word
 
     var wordsNotChanged = []; // empty array
-    var wordsChanged = []; // empty array
-    var wordsChangedObject = {};
+    var wordsChangedObject = {}; // empty object
 
     var wordsChangedChecker = []; // empty array, checks array length
 
@@ -498,52 +498,47 @@ function useWords(SingleMovieDetails) { // calls wordsAPI to change words which 
                 // .then(response => console.log(response))
                 // .catch(err => console.error(err))
                 .then(function (response) {
-                    if (response.status >= 400) {
-                        wordsChangedObject[i] = wordsSplit[i]; // to put words not used in the words API into another array
-                        // var wordsChanged = Object.values(wordsChangedObject);
+                    if (response.status >= 400) { // checks if a 404 error occurs mainly
+                        wordsChangedObject[i] = wordsSplit[i]; // will put the word into the object
                         return
                     } else {
                         return response.json();
                     }
                 })
                 .then(function (data) {
-                    if (!data) {
+                    if (!data) { // if the 404 error occured
                         var wordsChanged = Object.values(wordsChangedObject);
-                        console.log({wordsChangedObject, wordsChangedChecker, wordsNotChanged});
                         if (wordsChangedChecker.length === wordsChanged.length) { // Has to be placed here in the for loop or else the function won't call correctly
                             return joinWords(wordsChanged, wordsNotChanged); // takes the variables to use them in the next function
                         } else {
                             return
                         }
                     }
-                    // console.log(data);
                     var keysCheck = Object.keys(data); // gets the object key names from the call 
-                    // console.log(keysCheck);
                     if (keysCheck.includes("results")) { // to check if the word called has this key
                         var resultsCheck = Object.keys(data.results[0]); // checks the keys inside array 0
-                        // console.log(resultsCheck);
                     }
                     if (keysCheck.includes("results") && resultsCheck.includes("synonyms")) { // checks that those keys are in the object
                         wordsChangedObject[i] = data["results"][0]["synonyms"][0]; // pushes the first synonym of the first result into wordsChanged
-                        var wordsChanged = Object.values(wordsChangedObject);
+                        var wordsChanged = Object.values(wordsChangedObject); // takes the object value and puts it into wordsChanged
                         if (wordsChangedChecker.length === wordsChanged.length) { // Has to be placed here in the for loop or else the function won't call correctly
                             return joinWords(wordsChanged, wordsNotChanged); // takes the variables to use them in the next function
                         }
                     } else if (keysCheck.includes("results") && resultsCheck.includes("antonyms")) { // checks that those keys are in the object
                         wordsChangedObject[i] = (data["results"][0]["antonyms"][0]); // pushes the first antonym of the first result into wordsChanged
-                        var wordsChanged = Object.values(wordsChangedObject);
+                        var wordsChanged = Object.values(wordsChangedObject); // takes the object value and puts it into wordsChanged
                         if (wordsChangedChecker.length === wordsChanged.length) { // Has to be placed here in the for loop or else the function won't call correctly
                             return joinWords(wordsChanged, wordsNotChanged); // takes the variables to use them in the next function
                         }
                     } else if (keysCheck.includes("results") && resultsCheck.includes("typeOf")) { // checks that those keys are in the object
                         wordsChangedObject[i] = (data["results"][0]["typeOf"][0]); // pushes the first typeOf of the first result into wordsChanged
-                        var wordsChanged = Object.values(wordsChangedObject);
+                        var wordsChanged = Object.values(wordsChangedObject); // takes the object value and puts it into wordsChanged
                         if (wordsChangedChecker.length === wordsChanged.length) { // Has to be placed here in the for loop or else the function won't call correctly
                             return joinWords(wordsChanged, wordsNotChanged); // takes the variables to use them in the next function
                         }
                     } else {
                         wordsChangedObject[i] = (data["word"]); // returns the original word entered
-                        var wordsChanged = Object.values(wordsChangedObject);
+                        var wordsChanged = Object.values(wordsChangedObject); // takes the object value and puts it into wordsChanged
                         if (wordsChangedChecker.length === wordsChanged.length) { // Has to be placed here in the for loop or else the function won't call correctly
                             return joinWords(wordsChanged, wordsNotChanged); // takes the variables to use them in the next function
                         }
@@ -571,16 +566,13 @@ console.log(wordsNotChanged);
                 if (wordsNotChanged[i+1] !== undefined) { // if the next index in wordsNotChanged before the ith loop ends is undefined 
                     wordsChanged.unshift("oops"); // puts a new index from the beginning of the array shifting every index +1
                 }
-                // console.log(wordsChanged);
-                // console.log(joinedWords);
             } else if (wordsNotChanged[i] !== undefined) { // else if wordsNotChanged doesn't contain an ith undefined index
                 joinedWords.splice(i, 0, wordsNotChanged[i]);  // puts the ith index of wordsNotChanged into the ith index of joinedWords
-                if (wordsChanged[i+1] === undefined) { // if the next index in wordsChanged before the ith loop ends is undefined
+                if (wordsNotChanged[i+1] !== undefined) { // if the next index in wordsChanged before the ith loop ends is undefined
                     wordsChanged.unshift("oops"); // puts a new index from the beginning of the array shifting every index +1
                 }                  
-                // console.log(wordsChanged);
-                // console.log(joinedWords);
             }
+            console.log(joinedWords);
         }
         joinedWords = joinedWords.join(" "); // need to join the arrays into one string before splitting them again
         joinedWords = joinedWords.split(" "); // to split any new words that appeared which are more than one word in an index
