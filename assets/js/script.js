@@ -34,13 +34,15 @@ var totalMovies;
 var randomWordGenerator = "?random=true"; // parameter for generating random words
 var enteredInput = "test"; // form-input.value is supposed to be entered here, not a string.
 
-btnSearch.addEventListener("click",searchMovie);
-textboxSearch.addEventListener("keyup", toggleSearchButton);
-document.addEventListener("click",checkPaginationClick);
-modalCloseButton.addEventListener("click",closeModalDialog);
+btnSearch.addEventListener("click",searchMovie);    //event listener for Search button on index.html
+textboxSearch.addEventListener("keyup", toggleSearchButton);    //event listener for search text box on index.html
+document.addEventListener("click",checkPaginationClick);    //event listener for click on pagination button
+modalCloseButton.addEventListener("click",closeModalDialog);    //event listener for click on modal close button.
 
+
+
+// ---------------------    Enabling/Disabling search button and the appearance/layout of page  ------------------
 function toggleSearchButton(){
-    //var totalChild = document.body.children.length;
     if (textboxSearch.value.length>0)
     {
         btnSearch.disabled=false
@@ -52,6 +54,7 @@ function toggleSearchButton(){
     }
 }
 
+// ------------------------ sending the search title to omdbSearchTitle function to fetch from omdb server -------------
 function searchMovie(event){
     event.preventDefault();
     omdbSearchTitle(textboxSearch.value,1);
@@ -59,8 +62,9 @@ function searchMovie(event){
     sectionSearch.setAttribute("class","hero");
 }
 
+// ------------------------ calling fetch to omdb api and if nothing found then give error in a modal ----------------------
+//-------------------------else calls showSearchResult function and generate runtime elements and display
 function omdbSearchTitle(movieTitle,page){
-    
     fetch(omdbUrl + movieTitle + "&page=" + page).then(function (response) {
         if (response.ok) {
           response.json().then(function (data) {
@@ -71,23 +75,26 @@ function omdbSearchTitle(movieTitle,page){
                 modalErrorMessageSpan.textContent= movieTitle + " not found on IMDB, please check the movie title and search again.";
             }
             else{
-                sectionSearch.setAttribute("class","hero");
-                if (!movieSearchHistory.includes(movieTitle.toLowerCase()))
-                {
-                    movieSearchHistory.push(movieTitle.toLowerCase());
-                }
-                localStorage.setItem("searchHistory", JSON.stringify(movieSearchHistory));
+                sectionSearch.setAttribute("class","hero"); //Moving the searchbox at top from the middle of the page.
+                // if (!movieSearchHistory.includes(movieTitle.toLowerCase()))
+                // {
+                //     movieSearchHistory.push(movieTitle.toLowerCase());
+                // }
+                //localStorage.setItem("searchHistory", JSON.stringify(movieSearchHistory)); // no need of this
                 localStorage.setItem("currentPage",page);
                 showSearchResult(data);
             }
           });
         } else {
             //if response not ok have to show error in modal
+            modal.className="modal is-active";
+            modalErrorMessageSpan.textContent= "No response from server.";
         }
       });
 }
 
-
+//------------Getting single movie details and STORING it in localstorage so we can access the rescpective details ---------------
+//----------------------------from client, instead of using api call again and again. --------------------------------
 function omdbGetSingleMovieDetails(omdbid){
     fetch(omdbSingleSearchUrl+ omdbid).then(function (response) {
         if (response.ok) {
@@ -104,29 +111,30 @@ function omdbGetSingleMovieDetails(omdbid){
           });
         } else {
             //if response not ok have to show error in modal
+            console.log("server error.");
         }
       });
 }
 
+
+//-----------------------removing all the runtime generated elements so new can be generated as per ne search ----------------------
 function removeSearchAndPagination(){
     var sectionMovieResultPre = document.querySelector("#section-movie-result");
     const t = document.body.getElementsByClassName("display-result");
     if (sectionMovieResultPre !== null)
     {   
         document.body.removeChild(sectionMovieResultPre);
-        
-
         var sectionPagination = document.querySelector("#section-pagination");
         if (sectionPagination!==null)
         {
             // alert("i am in");
             document.body.removeChild(sectionPagination);
-
         }
     }
     document.body.setAttribute("min-height","100%")
 }
 
+//-------- Generating runtime elements and display the result of the search keyword -----------
 function showSearchResult(data){
     
     removeSearchAndPagination();
@@ -134,21 +142,9 @@ function showSearchResult(data){
     totalMovies=data["totalResults"];
     calculateTotalPages(totalMovies);
     
-    // vanila js
-    // var sectionMovieResult=document.createElement("section");
-    // sectionMovieResult.setAttribute("id","section-movie-result")
-    // sectionMovieResult.className= "hero display-result center-please";
-    
-    // //jquert
     var sectionMovieResult = $("<section>");
     sectionMovieResult.attr("id","section-movie-result")
     sectionMovieResult.addClass("hero display-result center-please");
-
-    //console.log(sectionMovieResult.getAttribute('id'));
-    // var searchMovieDivContainer=document.createElement ("div");
-    // searchMovieDivContainer.className= "container is-fluid";
-    // var searchMovieDivContainerColumn = document.createElement("div");
-    // searchMovieDivContainerColumn.className = "columns is-multiline is-centered";
 
     var searchMovieDivContainer= $("<div>");
     searchMovieDivContainer.addClass("container is-fluid");
@@ -182,23 +178,11 @@ function showSearchResult(data){
         var divInsideBox = $("<div>");
         divInsideBox.addClass("notification is-primary has-text-centered");
 
-        // var imgMovieImage = document.createElement("img");
-        // imgMovieImage.setAttribute("id","img-movie");
-        // imgMovieImage.setAttribute("data-id",imdbID);
-        // imgMovieImage.setAttribute("src",poster);
-        // imgMovieImage.className="cursor";
-
         var imgMovieImage = $("<img>");
         // imgMovieImage.attr("id","img-movie");
         imgMovieImage.attr("data-id",imdbID);
         imgMovieImage.attr("src",poster);
         imgMovieImage.addClass("cursor img-movie");
-
-        // var h3MovieTitle = document.createElement("h3");
-        // h3MovieTitle.className = "title is-6 curs-or";
-        // h3MovieTitle.setAttribute("id","img-movie");
-        // h3MovieTitle.setAttribute("data-id",imdbID);
-        // h3MovieTitle.textContent = movieTitle;
 
         var h3MovieTitle =$("<h3>");
         h3MovieTitle.addClass("title is-6 cursor img-movie");
@@ -206,36 +190,24 @@ function showSearchResult(data){
         h3MovieTitle.attr("data-id",imdbID);
         h3MovieTitle.text(movieTitle);
         
-
-        // divInsideBox.appendChild(imgMovieImage);
-        // divInsideBox.appendChild(h3MovieTitle);
-        // divOutBox.appendChild(divInsideBox);
-
-        // searchMovieDivContainerColumn.appendChild(divOutBox);
-
         divInsideBox.append(imgMovieImage);
         divInsideBox.append(h3MovieTitle);
         divOutBox.append(divInsideBox);
 
         searchMovieDivContainerColumn.append(divOutBox);
     }
-    // searchMovieDivContainer.appendChild(searchMovieDivContainerColumn);
-    // sectionMovieResult.append(searchMovieDivContainer);
-    // document.body.appendChild(sectionMovieResult);
-
     searchMovieDivContainer.append(searchMovieDivContainerColumn);
     sectionMovieResult.append(searchMovieDivContainer);
     bd.append(sectionMovieResult);
 
-    // var movieResultClick= document.querySelector("#img-movie"); 
     sectionMovieResult.on("click",".img-movie", getMoreDetails);
-    //console.log("after creating : " + document.body.children.length);
 }
 
+
+//-------- Calculating total number of pages for the result returned from OMDB search and creating the PAgination according---------
 function calculateTotalPages(totalMovies){
     totalPages = Math.floor(totalMovies / 10);
     
-
     if (totalMovies%10>0)
     {
         totalPages++;
@@ -248,6 +220,7 @@ function calculateTotalPages(totalMovies){
     console.log("Total Movies " + totalMovies + "     totalPages " +totalPages);
 }
 
+// ------------------------------ GENERATING PAGINATION ----------------------------------------
 function generatePagination(){
     var loopStartingInt;
     var loopFinishingInt;
@@ -365,21 +338,22 @@ function getCurrentPageNumber()
     return parseInt(localStorage.getItem("currentPage"));
 }
 
-
+//------------ Check the click is on Page number and calling the api with corresponding page number -------------
 function checkPaginationClick(event){
-    //console.log(event.target);
-    if((event.target).className==="pagination-link")
+    
+    if((event.target).className==="pagination-link"  ||  $(event.target).attr("data-id")==="btn-back")
     {
         if (typeof(parseInt((event.target).textContent))==="number")
         {
-            pageNumber=(event.target).textContent
+             console.log(pageNumber);
+            pageNumber=$(event.target).attr("data-label");
             omdbSearchTitle(textboxSearch.value,pageNumber);
         }
     }
     localStorage.setItem("currentPage",pageNumber); 
 }
 
-// ---------- -- ------- CHECK CLICK EVENT ON MOVIE ----------- ------ -----------//
+// -------------------FUNCTION TO BE CALLED WHEN A MOVIE POSTER IS CLICKED ----------- ------ -----------//
 
 function getMoreDetails(event){
     var clickedMovie = $(event.target).data("id");
@@ -389,29 +363,12 @@ function getMoreDetails(event){
     console.log(SingleMovieDetails["Title"]);
     removeSearchAndPagination();
 
-    useWords(SingleMovieDetails["Title"]); // needs to be put here, do not place in the function that responds to keyup.
-    
-
-    // <section >
-    //     <div class="container">
-    //       <div class="columns is-multiline">
-    //         <div class="column notification test is-3 is-3-fullhd is-3-desktop is-6-tablet is-12-mobile">
-    //           <img>
-    //           <h3></h3>
-    //         </div>
-    //         <div class="column test is-9 is-9-fullhd is-9-desktop is-6-tablet is-12-mobile">
-    //           <h2></h2>
-    //         </div>
-    //       </div>
-    //     </div>
-    //   </section>
     bd.addClass("is-fullheight");
     var sectionSingleMovieResult = $("<section>");
     sectionSingleMovieResult.addClass("hero display-result center-please");
     sectionSingleMovieResult.attr("id","section-movie-result")
     var divSingleMovieContainer = $("<div>");
     divSingleMovieContainer.addClass("container is-fluid");
-    //divSingleMovieContainer.
 
     var divSingleMovieColumns = $("<div>");
     divSingleMovieColumns.addClass("columns  is-multiline is-centered");
@@ -431,11 +388,16 @@ function getMoreDetails(event){
 
         var divSingleMovieOrderedListItemPlot = $("<li>");
         divSingleMovieOrderedListItemPlot.text("Plot ---> " + SingleMovieDetails["Plot"]);
+        // This is a button for the trigger warning 
+        const btn = document.createElement("button");
+        btn.innerHTML = "Trigger warnings and spoilers";
+
 
     divSingleMovieOrderedList.append(divSingleMovieOrderedListItemTitle);    
     divSingleMovieOrderedList.append(divSingleMovieOrderedListItemPlot);
 
     divSingleMovieColumnNotification.append(divSingleMovieOrderedList);
+    divSingleMovieColumnNotification.append(btn);
     divSingleMovieColumns.append(divSingleMovieColumnNotification);
 
     var divSingleMovieContainerBack = $("<div>");
@@ -443,7 +405,8 @@ function getMoreDetails(event){
 
     var divSingleMovieBackButton = $("<button>");
     divSingleMovieBackButton.addClass("button is-primary");
-    divSingleMovieBackButton.attr("id","btn-back");
+    divSingleMovieBackButton.attr("data-id","btn-back");
+    divSingleMovieBackButton.attr("data-label",pageNumber);
     divSingleMovieBackButton.text("Back");
 
     divSingleMovieContainerBack.append(divSingleMovieBackButton);
@@ -451,6 +414,7 @@ function getMoreDetails(event){
     sectionSingleMovieResult.append(divSingleMovieContainer);
     sectionSingleMovieResult.append(divSingleMovieContainerBack);
     bd.append(sectionSingleMovieResult);
+
 }
 
 function init(){
@@ -624,3 +588,5 @@ triggerWarnings();
 // 	.then(response => response.json())
 // 	.then(response => console.log(response))
 // 	.catch(err => console.error(err));
+
+

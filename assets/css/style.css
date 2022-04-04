@@ -17,6 +17,16 @@ img{
     height: 222.5px;
  /* width: 50px; */
 }
+img:hover {
+    /* position: absolute; */
+    max-width: 200px;
+    max-height: 272.5px;
+    height: 250px;
+    width: auto;
+    border: 5px solid gray;
+    box-shadow: 0 5px 30px black;
+}
+
 
 .display-result{
     margin: 15px;
@@ -47,9 +57,6 @@ img{
     color: #fff;
 }
 
-.test{
-    /* border: 2px solid; */
-}
 
 h3.title.is-6 {
     color: darkslategrey;
