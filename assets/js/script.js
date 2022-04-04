@@ -340,12 +340,13 @@ function getCurrentPageNumber()
 
 //------------ Check the click is on Page number and calling the api with corresponding page number -------------
 function checkPaginationClick(event){
-    //console.log(event.target);
-    if((event.target).className==="pagination-link")
+    
+    if((event.target).className==="pagination-link"  ||  $(event.target).attr("data-id")==="btn-back")
     {
         if (typeof(parseInt((event.target).textContent))==="number")
         {
-            pageNumber=(event.target).textContent
+             console.log(pageNumber);
+            pageNumber=$(event.target).attr("data-label");
             omdbSearchTitle(textboxSearch.value,pageNumber);
         }
     }
@@ -368,7 +369,6 @@ function getMoreDetails(event){
     sectionSingleMovieResult.attr("id","section-movie-result")
     var divSingleMovieContainer = $("<div>");
     divSingleMovieContainer.addClass("container is-fluid");
-    //divSingleMovieContainer.
 
     var divSingleMovieColumns = $("<div>");
     divSingleMovieColumns.addClass("columns  is-multiline is-centered");
@@ -400,7 +400,8 @@ function getMoreDetails(event){
 
     var divSingleMovieBackButton = $("<button>");
     divSingleMovieBackButton.addClass("button is-primary");
-    divSingleMovieBackButton.attr("id","btn-back");
+    divSingleMovieBackButton.attr("data-id","btn-back");
+    divSingleMovieBackButton.attr("data-label",pageNumber);
     divSingleMovieBackButton.text("Back");
 
     divSingleMovieContainerBack.append(divSingleMovieBackButton);
@@ -408,6 +409,7 @@ function getMoreDetails(event){
     sectionSingleMovieResult.append(divSingleMovieContainer);
     sectionSingleMovieResult.append(divSingleMovieContainerBack);
     bd.append(sectionSingleMovieResult);
+
 }
 
 function init(){
