@@ -41,9 +41,14 @@ img{
 .box {
     font-size: large;
 }
+
 .notification.is-primary {
     background-color: rgb(232,232,232);
     color: #fff;
+}
+
+.test{
+    /* border: 2px solid; */
 }
 
 h3.title.is-6 {
