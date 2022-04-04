@@ -430,11 +430,16 @@ function getMoreDetails(event){
 
         var divSingleMovieOrderedListItemPlot = $("<li>");
         divSingleMovieOrderedListItemPlot.text("Plot ---> " + SingleMovieDetails["Plot"]);
+        // This is a button for the trigger warning 
+        const btn = document.createElement("button");
+        btn.innerHTML = "Trigger warnings and spoilers";
+
 
     divSingleMovieOrderedList.append(divSingleMovieOrderedListItemTitle);    
     divSingleMovieOrderedList.append(divSingleMovieOrderedListItemPlot);
 
     divSingleMovieColumnNotification.append(divSingleMovieOrderedList);
+    divSingleMovieColumnNotification.append(btn);
     divSingleMovieColumns.append(divSingleMovieColumnNotification);
 
     var divSingleMovieContainerBack = $("<div>");
@@ -586,3 +591,5 @@ function joinWords(wordsChanged, wordsNotChanged) { // we get the words for the 
 // 	.then(response => response.json())
 // 	.then(response => console.log(response))
 // 	.catch(err => console.error(err));
+
+
