@@ -27,7 +27,7 @@ var modal = document.querySelector("#modal");
 var modalErrorMessageSpan = document.querySelector("#error-message");
 var modalCloseButton = document.querySelector("#btn-modal-close");
 var modalCardTitle = document.querySelector("#modal-card-title");
-
+var modalSection = document.querySelector("#modal-section");
 // ------------------------- Variables used to perform and maintain pagination -------------------------
 var pageNumber;
 var totalPages;
@@ -76,6 +76,7 @@ function omdbSearchTitle(movieTitle,page){
                 //CHANGE console log to MODAL display
                 modal.className="modal is-active";
                 modalCardTitle.textContent="Not Found"
+                modalCloseButton.setAttribute("data-id","not-found");
                 modalErrorMessageSpan.textContent= movieTitle + " not found on IMDB, please check the movie title and search again.";
             }
             else{
@@ -433,7 +434,7 @@ function displayMoreDetails(SingleMovieDetails){
     divSingleMovieHeadingGenresText.text(SingleMovieDetails["Genre"]);
 
     var divSingleMovieHeadingDescription = $("<h4>").addClass("title is-4");
-    divSingleMovieHeadingDescription.text("Description");
+    divSingleMovieHeadingDescription.text("Plot");
     var divSingleMovieHeadingDescriptionText = $("<h5>").addClass("subtitle is-5");
     divSingleMovieHeadingDescriptionText.text(SingleMovieDetails["Plot"]);
 
@@ -465,6 +466,7 @@ function displayMoreDetails(SingleMovieDetails){
     const btn = document.createElement("button");
     btn.className = "button is-primary btn-trigger";
     btn.innerHTML = "Trigger warnings and spoilers";
+    btn.addEventListener("click",triggerWarnings);
     
     divSingleMovieColumnNotification.append(btn);
     divSingleMovieColumns.append(divSingleMovieColumnNotification);
@@ -501,10 +503,15 @@ init();
 /// ---------------------------------- FUNCTION TO CLOSE MODAL (ERROR DISPLAYED WHEN SEARCHED MOVIE NOT FOUND) ---------------
 function closeModalDialog(event){
     modal.className="modal";
-    if ($(event.target).attr("data-id")!=="cache")
+    if ($(event.target).attr("data-id")==="not-found")
     {
         removeSearchAndPagination();
         sectionSearch.setAttribute("class","hero is-fullheight")
+    }
+    
+    if ($(event.target).attr("data-id")==="triggers")
+    {   
+        modalSection.removeChild(modalSection.lastChild);
     }
 }
 
@@ -512,128 +519,199 @@ const options = { // code provided by API docs
 	method: 'GET',
 	headers: {
 		'X-RapidAPI-Host': 'wordsapiv1.p.rapidapi.com',
-		//'X-RapidAPI-Key': '6ecbaac172msh867cf483a4913b6p183836jsn739ee58e425f' // R143
+		//'X-RapidAPI-Key': '6ecbaac172msh867cf483a4913b6p183836jsn739ee58e425f' // 
         'X-RapidAPI-Key': '19e0589afbmsh556050275ca3029p18158fjsnbd5c863b8ce8'   // Murad
 	}
 };
 
-function useWords(SingleMovieDetails) { // calls wordsAPI to change words which will generate title
-    var lowerCase = SingleMovieDetails.toLowerCase(); // have to make strings lowercase to make sure includes() list works correctly
-    var wordsSplit = lowerCase.split(" "); // splits the title entered by each word
+// function useWords(SingleMovieDetails) { // calls wordsAPI to change words which will generate title
+//     var lowerCase = SingleMovieDetails.toLowerCase(); // have to make strings lowercase to make sure includes() list works correctly
+//     var wordsSplit = lowerCase.split(" "); // splits the title entered by each word
 
-    var wordsNotChanged = []; // empty array
-    var wordsChanged = []; // empty array
-    var wordsChangedObject = {};
+//     var wordsNotChanged = []; // empty array
+//     var wordsChanged = []; // empty array
+//     var wordsChangedObject = {};
 
-    var wordsChangedChecker = []; // empty array, checks array length
+//     var wordsChangedChecker = []; // empty array, checks array length
 
-    for (var j = 0; j < wordsSplit.length; j++) { // to get the array length of the words that will go through API call
-        if (!commonMovieTitleWords.includes(wordsSplit[j])){
-            wordsChangedChecker.push(wordsSplit[j]);
-        }
-    }
+//     for (var j = 0; j < wordsSplit.length; j++) { // to get the array length of the words that will go through API call
+//         if (!commonMovieTitleWords.includes(wordsSplit[j])){
+//             wordsChangedChecker.push(wordsSplit[j]);
+//         }
+//     }
 
-    for (let i = 0; i < wordsSplit.length; i++) { // puts each word into an if statement to make a fetch call or not and fill arrays
+//     for (let i = 0; i < wordsSplit.length; i++) { // puts each word into an if statement to make a fetch call or not and fill arrays
         
-        if (!commonMovieTitleWords.includes(wordsSplit[i])){
-            fetch('https://wordsapiv1.p.rapidapi.com/words/' + wordsSplit[i], options) // to get a word you input: GET https://wordsapiv1.p.mashape.com/words/{word}
-                // .then(response => response.json()) // code provided by API docs but not used.
-                // .then(response => console.log(response))
-                // .catch(err => console.error(err))
-                .then(function (response) {
-                    if (response.status >= 400) {
-                        wordsChangedObject[i] = wordsSplit[i]; // to put words not used in the words API into another array
-                        // var wordsChanged = Object.values(wordsChangedObject);
-                        return
-                    } else {
-                        return response.json();
-                    }
-                })
-                .then(function (data) {
-                    if (!data) {
-                        var wordsChanged = Object.values(wordsChangedObject);
+//         if (!commonMovieTitleWords.includes(wordsSplit[i])){
+//             fetch('https://wordsapiv1.p.rapidapi.com/words/' + wordsSplit[i], options) // to get a word you input: GET https://wordsapiv1.p.mashape.com/words/{word}
+//                 .then(function (response) {
+//                     if (response.status >= 400) {
+//                         wordsChangedObject[i] = wordsSplit[i]; // to put words not used in the words API into another array
+//                         return
+//                     } else {
+//                         return response.json();
+//                     }
+//                 })
+//                 .then(function (data) {
+//                     if (!data) {
+//                         var wordsChanged = Object.values(wordsChangedObject);
                         
-                        if (wordsChangedChecker.length === wordsChanged.length) { // Has to be placed here in the for loop or else the function won't call correctly
-                            return joinWords(wordsChanged, wordsNotChanged); // takes the variables to use them in the next function
-                        } else {
-                            return
-                        }
-                    }
-                    // console.log(data);
-                    var keysCheck = Object.keys(data); // gets the object key names from the call 
-                    // console.log(keysCheck);
-                    if (keysCheck.includes("results")) { // to check if the word called has this key
-                        var resultsCheck = Object.keys(data.results[0]); // checks the keys inside array 0
-                        // console.log(resultsCheck);
-                    }
-                    if (keysCheck.includes("results") && resultsCheck.includes("synonyms")) { // checks that those keys are in the object
-                        wordsChangedObject[i] = data["results"][0]["synonyms"][0]; // pushes the first synonym of the first result into wordsChanged
-                        var wordsChanged = Object.values(wordsChangedObject);
-                        if (wordsChangedChecker.length === wordsChanged.length) { // Has to be placed here in the for loop or else the function won't call correctly
-                            return joinWords(wordsChanged, wordsNotChanged); // takes the variables to use them in the next function
-                        }
-                    } else if (keysCheck.includes("results") && resultsCheck.includes("antonyms")) { // checks that those keys are in the object
-                        wordsChangedObject[i] = (data["results"][0]["antonyms"][0]); // pushes the first antonym of the first result into wordsChanged
-                        var wordsChanged = Object.values(wordsChangedObject);
-                        if (wordsChangedChecker.length === wordsChanged.length) { // Has to be placed here in the for loop or else the function won't call correctly
-                            return joinWords(wordsChanged, wordsNotChanged); // takes the variables to use them in the next function
-                        }
-                    } else if (keysCheck.includes("results") && resultsCheck.includes("typeOf")) { // checks that those keys are in the object
-                        wordsChangedObject[i] = (data["results"][0]["typeOf"][0]); // pushes the first typeOf of the first result into wordsChanged
-                        var wordsChanged = Object.values(wordsChangedObject);
-                        if (wordsChangedChecker.length === wordsChanged.length) { // Has to be placed here in the for loop or else the function won't call correctly
-                            return joinWords(wordsChanged, wordsNotChanged); // takes the variables to use them in the next function
-                        }
-                    } else {
-                        wordsChangedObject[i] = (data["word"]); // returns the original word entered
-                        var wordsChanged = Object.values(wordsChangedObject);
-                        if (wordsChangedChecker.length === wordsChanged.length) { // Has to be placed here in the for loop or else the function won't call correctly
-                            return joinWords(wordsChanged, wordsNotChanged); // takes the variables to use them in the next function
-                        }
-                    }
-                })
-        }
+//                         if (wordsChangedChecker.length === wordsChanged.length) { // Has to be placed here in the for loop or else the function won't call correctly
+//                             return joinWords(wordsChanged, wordsNotChanged); // takes the variables to use them in the next function
+//                         } else {
+//                             return
+//                         }
+//                     }
+//                     var keysCheck = Object.keys(data); // gets the object key names from the call 
+//                     if (keysCheck.includes("results")) { // to check if the word called has this key
+//                         var resultsCheck = Object.keys(data.results[0]); // checks the keys inside array 0
+//                     }
+//                     if (keysCheck.includes("results") && resultsCheck.includes("synonyms")) { // checks that those keys are in the object
+//                         wordsChangedObject[i] = data["results"][0]["synonyms"][0]; // pushes the first synonym of the first result into wordsChanged
+//                         var wordsChanged = Object.values(wordsChangedObject);
+//                         if (wordsChangedChecker.length === wordsChanged.length) { // Has to be placed here in the for loop or else the function won't call correctly
+//                             return joinWords(wordsChanged, wordsNotChanged); // takes the variables to use them in the next function
+//                         }
+//                     } else if (keysCheck.includes("results") && resultsCheck.includes("antonyms")) { // checks that those keys are in the object
+//                         wordsChangedObject[i] = (data["results"][0]["antonyms"][0]); // pushes the first antonym of the first result into wordsChanged
+//                         var wordsChanged = Object.values(wordsChangedObject);
+//                         if (wordsChangedChecker.length === wordsChanged.length) { // Has to be placed here in the for loop or else the function won't call correctly
+//                             return joinWords(wordsChanged, wordsNotChanged); // takes the variables to use them in the next function
+//                         }
+//                     } else if (keysCheck.includes("results") && resultsCheck.includes("typeOf")) { // checks that those keys are in the object
+//                         wordsChangedObject[i] = (data["results"][0]["typeOf"][0]); // pushes the first typeOf of the first result into wordsChanged
+//                         var wordsChanged = Object.values(wordsChangedObject);
+//                         if (wordsChangedChecker.length === wordsChanged.length) { // Has to be placed here in the for loop or else the function won't call correctly
+//                             return joinWords(wordsChanged, wordsNotChanged); // takes the variables to use them in the next function
+//                         }
+//                     } else {
+//                         wordsChangedObject[i] = (data["word"]); // returns the original word entered
+//                         var wordsChanged = Object.values(wordsChangedObject);
+//                         if (wordsChangedChecker.length === wordsChanged.length) { // Has to be placed here in the for loop or else the function won't call correctly
+//                             return joinWords(wordsChanged, wordsNotChanged); // takes the variables to use them in the next function
+//                         }
+//                     }
+//                 })
+//         }
 
-        if (commonMovieTitleWords.includes(wordsSplit[i])) {
-            wordsNotChanged[i] = wordsSplit[i]; // to put words not used in the words API into another array
-            // console.log(wordsNotChanged);
-        } else {
-            wordsNotChanged[i] = undefined; // if it's not undefined then it will be empty and consecutive empty indexes get merged which gives the wrong array length to use
-        }
-    } 
+//         if (commonMovieTitleWords.includes(wordsSplit[i])) {
+//             wordsNotChanged[i] = wordsSplit[i]; // to put words not used in the words API into another array
+//         } else {
+//             wordsNotChanged[i] = undefined; // if it's not undefined then it will be empty and consecutive empty indexes get merged which gives the wrong array length to use
+//         }
+//     } 
+// }
+
+// function joinWords(wordsChanged, wordsNotChanged) { // we get the words for the movie title after changing it and put it back together
+
+//     var joinedWords = []; // empty array for joining the words
+
+//         for (var i = 0; i < wordsNotChanged.length; i++) { // checks the length of wordsNotChanged array because that contains the correct length
+//             if (wordsNotChanged[i] === undefined) { // if wordsNotChanged contains an ith undefined index
+//                 joinedWords.splice(i, 0, wordsChanged[i]); // puts the ith index of wordsChanged into the ith index of joinedWords
+//                 if (wordsNotChanged[i+1] !== undefined) { // if the next index in wordsNotChanged before the ith loop ends is undefined 
+//                     wordsChanged.unshift("oops"); // puts a new index from the beginning of the array shifting every index +1
+//                 }
+//             } else if (wordsNotChanged[i] !== undefined) { // else if wordsNotChanged doesn't contain an ith undefined index
+//                 joinedWords.splice(i, 0, wordsNotChanged[i]);  // puts the ith index of wordsNotChanged into the ith index of joinedWords
+//                 if (wordsNotChanged[i+1] !== undefined) { // if the next index in wordsNotChanged before the ith loop ends is undefined
+//                     wordsChanged.unshift("oops"); // puts a new index from the beginning of the array shifting every index +1
+//                 }                  
+//             }
+//         }
+//         joinedWords = joinedWords.join(" "); // need to join the arrays into one string before splitting them again
+//         joinedWords = joinedWords.split(" "); // to split any new words that appeared which are more than one word in an index
+
+//         for (var j = 0; j < joinedWords.length; j++) { // to capitalise the first letter of each word in an array, source: https://flexiple.com/javascript-capitalize-first-letter/#:~:text=To%20capitalize%20the%20first%20character,()%20function%20to%20capitalize%20it.
+//             joinedWords[j] = joinedWords[j].charAt(0).toUpperCase() + joinedWords[j].slice(1); // in the jth index of the array, the first character changes to uppercase and is then concatenated with the rest of the word that was sliced from the second letter
+//         }
+//     joinedWords = joinedWords.join(" "); // the final join which creates a string
+//     changeMovieTitle(joinedWords);
+// }
+
+
+
+var lowerCase; // have to make strings lowercase to make sure includes() list works correctly
+var wordsSplit; // splits the title entered by each word
+var wordsNotChanged = []; // empty array
+var wordsChanged = []; // empty array
+var wordsChangedChecker = []; // empty array, checks array length
+var wordDone=0;
+var wordsLength=0;
+
+function useWords(SingleMovieDetails) { // calls wordsAPI to change words which will generate title
+    lowerCase = SingleMovieDetails.toLowerCase(); // have to make strings lowercase to make sure includes() list works correctly
+    wordsSplit = lowerCase.split(" "); // splits the title entered by each word
+    wordsChanged=[];
+     
+    wordsLength=wordsSplit.length;
+    wordDone=-1;
+    generateNewWords();
 }
 
-function joinWords(wordsChanged, wordsNotChanged) { // we get the words for the movie title after changing it and put it back together
-
-    var joinedWords = []; // empty array for joining the words
-
-        for (var i = 0; i < wordsNotChanged.length; i++) { // checks the length of wordsNotChanged array because that contains the correct length
-            if (wordsNotChanged[i] === undefined) { // if wordsNotChanged contains an ith undefined index
-                joinedWords.splice(i, 0, wordsChanged[i]); // puts the ith index of wordsChanged into the ith index of joinedWords
-                if (wordsNotChanged[i+1] !== undefined) { // if the next index in wordsNotChanged before the ith loop ends is undefined 
-                    wordsChanged.unshift("oops"); // puts a new index from the beginning of the array shifting every index +1
-                }
-                // console.log(wordsChanged);
-                // console.log(joinedWords);
-            } else if (wordsNotChanged[i] !== undefined) { // else if wordsNotChanged doesn't contain an ith undefined index
-                joinedWords.splice(i, 0, wordsNotChanged[i]);  // puts the ith index of wordsNotChanged into the ith index of joinedWords
-                if (wordsChanged[i+1] === undefined) { // if the next index in wordsChanged before the ith loop ends is undefined
-                    wordsChanged.unshift("oops"); // puts a new index from the beginning of the array shifting every index +1
-                }                  
-                // console.log(wordsChanged);
-                // console.log(joinedWords);
+function generateNewWords(){
+    wordDone++
+    if (wordDone<=wordsLength)
+        {
+            if (commonMovieTitleWords.includes(wordsSplit[wordDone]))
+            {
+                wordsChanged.push(wordsSplit[wordDone]);
+                console.log("common word " + wordsSplit[wordDone]);
+                generateNewWords();
+            }
+            else{
+                getFetch(wordsSplit[wordDone], wordDone);
             }
         }
-        joinedWords = joinedWords.join(" "); // need to join the arrays into one string before splitting them again
-        joinedWords = joinedWords.split(" "); // to split any new words that appeared which are more than one word in an index
-
-        for (var j = 0; j < joinedWords.length; j++) { // to capitalise the first letter of each word in an array, source: https://flexiple.com/javascript-capitalize-first-letter/#:~:text=To%20capitalize%20the%20first%20character,()%20function%20to%20capitalize%20it.
-            joinedWords[j] = joinedWords[j].charAt(0).toUpperCase() + joinedWords[j].slice(1); // in the jth index of the array, the first character changes to uppercase and is then concatenated with the rest of the word that was sliced from the second letter
+        else{
+         wordsChanged.splice(-1);
+         console.log(wordsChanged.join(" "));
+         changeMovieTitle(wordsChanged.join(" "));
         }
-    joinedWords = joinedWords.join(" "); // the final join which creates a string
-    changeMovieTitle(joinedWords);
-    // insert.textContent <here> = joinedWords // puts the string onto the page
 }
+
+function getFetch(word,i)
+{
+        fetch('https://wordsapiv1.p.rapidapi.com/words/' + word, options) // to get a word you input: GET https://wordsapiv1.p.mashape.com/words/{word}
+            // .then(response => response.json()) // code provided by API docs but not used.
+            // .then(response => console.log(response))
+            // .catch(err => console.error(err))
+            .then(function (response) {
+                return response.json();
+            })
+            .then(function (data) {
+                // console.log(data);
+                var keysCheck = Object.keys(data); // gets the object key names from the call 
+                // console.log(keysCheck);
+                if (keysCheck.includes("results")) { // to check if the word called has this key
+                    var resultsCheck = Object.keys(data.results[0]); // checks the keys inside array 0
+                    //console.log(resultsCheck);
+                }
+                if (keysCheck.includes("results") && resultsCheck.includes("synonyms")) { // checks that those keys are in the object
+                    console.log(data["results"][0]["synonyms"][0]);
+                    wordsChanged.push(data["results"][0]["synonyms"][0]); // pushes the first synonym of the first result into wordsChanged
+                     
+                } else if (keysCheck.includes("results") && resultsCheck.includes("antonyms")) { // checks that those keys are in the object
+                    wordsChanged.push(data["results"][0]["antonyms"][0]); // pushes the first antonym of the first result into wordsChanged
+                     
+                } else if (keysCheck.includes("results") && resultsCheck.includes("typeOf")) { // checks that those keys are in the object
+                    wordsChanged.push(data["results"][0]["typeOf"][0]); // pushes the first typeOf of the first result into wordsChanged
+                     
+                } else {
+                    wordsChanged.push(word); // returns the original word entered
+                     
+                }
+                // console.log("comng here");
+                // console.log(i);
+                for (var j = 0; j < wordsChanged.length; j++) { // to capitalise the first letter of each word in an array, source: https://flexiple.com/javascript-capitalize-first-letter/#:~:text=To%20capitalize%20the%20first%20character,()%20function%20to%20capitalize%20it.
+                    wordsChanged[j] = wordsChanged[j].charAt(0).toUpperCase() + wordsChanged[j].slice(1); // in the jth index of the array, the first character changes to uppercase and is then concatenated with the rest of the word that was sliced from the second letter
+                }
+                 generateNewWords();
+                
+                
+            })   
+}
+
 
 function changeMovieTitle(jWords)
 {
@@ -642,88 +720,11 @@ function changeMovieTitle(jWords)
     headingMovieTitle.text(jWords);
     
 }
-// var lowerCase; // have to make strings lowercase to make sure includes() list works correctly
-// var wordsSplit; // splits the title entered by each word
-// var wordsNotChanged = []; // empty array
-// var wordsChanged = []; // empty array
-// var wordsChangedChecker = []; // empty array, checks array length
-// var wordDone=0;
-// var wordsLength=0;
-
-// function useWords(SingleMovieDetails) { // calls wordsAPI to change words which will generate title
-//     lowerCase = SingleMovieDetails.toLowerCase(); // have to make strings lowercase to make sure includes() list works correctly
-//     wordsSplit = lowerCase.split(" "); // splits the title entered by each word
-//     wordsChanged=[];
-     
-//     wordsLength=wordsSplit.length;
-//     wordDone=-1;
-//     generateNewWords();
-// }
-
-// function generateNewWords(){
-//     wordDone++
-//     if (wordDone<=wordsLength)
-//         {
-//             if (commonMovieTitleWords.includes(wordsSplit[wordDone]))
-//             {
-//                 wordsChanged.push(wordsSplit[wordDone]);
-//                 console.log("common word " + wordsSplit[wordDone]);
-//                 generateNewWords();
-//             }
-//             else{
-//                 getFetch(wordsSplit[wordDone], wordDone);
-//             }
-//         }
-//         else{
-//          wordsChanged.splice(-1);
-//          console.log(wordsChanged.join(" "));
-//         }
-// }
-
-// function getFetch(word,i)
-// {
-//         fetch('https://wordsapiv1.p.rapidapi.com/words/' + word, options) // to get a word you input: GET https://wordsapiv1.p.mashape.com/words/{word}
-//             // .then(response => response.json()) // code provided by API docs but not used.
-//             // .then(response => console.log(response))
-//             // .catch(err => console.error(err))
-//             .then(function (response) {
-//                 return response.json();
-//             })
-//             .then(function (data) {
-//                 // console.log(data);
-//                 var keysCheck = Object.keys(data); // gets the object key names from the call 
-//                 // console.log(keysCheck);
-//                 if (keysCheck.includes("results")) { // to check if the word called has this key
-//                     var resultsCheck = Object.keys(data.results[0]); // checks the keys inside array 0
-//                     //console.log(resultsCheck);
-//                 }
-//                 if (keysCheck.includes("results") && resultsCheck.includes("synonyms")) { // checks that those keys are in the object
-//                     console.log(data["results"][0]["synonyms"][0]);
-//                     wordsChanged.push(data["results"][0]["synonyms"][0]); // pushes the first synonym of the first result into wordsChanged
-                     
-//                 } else if (keysCheck.includes("results") && resultsCheck.includes("antonyms")) { // checks that those keys are in the object
-//                     wordsChanged.push(data["results"][0]["antonyms"][0]); // pushes the first antonym of the first result into wordsChanged
-                     
-//                 } else if (keysCheck.includes("results") && resultsCheck.includes("typeOf")) { // checks that those keys are in the object
-//                     wordsChanged.push(data["results"][0]["typeOf"][0]); // pushes the first typeOf of the first result into wordsChanged
-                     
-//                 } else {
-//                     wordsChanged.push(word); // returns the original word entered
-                     
-//                 }
-//                 console.log("comng here");
-//                 console.log(i);
-//                 generateNewWords();
-                
-//             })   
-// }
-
 
 function triggerWarnings() {
     var triggers = []
 
     var firstRoll = Math.ceil(Math.random() * 4);
-    // console.log(firstRoll);
     
     for (let i = 0; i < firstRoll; i++) {
        var index = Math.floor(Math.random() * triggerWarningsConcat.length);
@@ -733,22 +734,20 @@ function triggerWarnings() {
         var index2 = Math.floor(Math.random() * triggerWarningsConcat.length);
         triggers.push(triggerWarningsConcat[index2]);
        }
-        
-       // console.log(triggers)
     }
+
+    //Display triggers in modal
+    var newOrderedList = document.createElement("ol");
+
+    for (var i=0; i<triggers.length; i++)
+    {
+        var newListItem = document.createElement("li");
+        newListItem.textContent=triggers[i];
+        newOrderedList.appendChild(newListItem);
+    }
+    
+    modalSection.appendChild(newOrderedList);
+    modal.className="modal is-active";
+    modalCloseButton.setAttribute("data-id","triggers");
+    modalCardTitle.textContent="Trigger Warnings"
 }
-
-triggerWarnings();
-
-// word details that can appear in JSON Format, see docs: https://www.wordsapi.com/docs/#get-word-details
-
-// if you want to play around with the words API, please use free demonstrator at: https://www.wordsapi.com/
-// regarding API Calls using the API Key, please use it sparingly as there is a limit of 2500 calls per day and exceeding that 2500 call limit results in a charge of $0.004 per call after that 2500 limit. 
-
-// to get a random word: GET https://wordsapiv1.p.mashape.com/words?random=true
-// fetch('https://wordsapiv1.p.rapidapi.com/words/' + randomWordGenerator, options) // code provided by API docs
-// 	.then(response => response.json())
-// 	.then(response => console.log(response))
-// 	.catch(err => console.error(err));
-
-

@@ -75,7 +75,9 @@ h5{
     cursor: pointer;
 }
 
-
+ol{
+    margin-left: 20px;
+}
 @media only screen and (max-width: 600px) {
     .search-box{
         width: 100%;
