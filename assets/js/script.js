@@ -26,6 +26,8 @@ var omdbSingleSearchUrl = "https://www.omdbapi.com/?apikey=" + omdbApiKey + "&i=
 var modal = document.querySelector("#modal");
 var modalErrorMessageSpan = document.querySelector("#error-message");
 var modalCloseButton = document.querySelector("#btn-modal-close");
+var modalCardTitle = document.querySelector("#modal-card-title");
+var modalSection = document.querySelector("#modal-section");
 // ------------------------- Variables used to perform and maintain pagination -------------------------
 var pageNumber;
 var totalPages;
@@ -73,6 +75,8 @@ function omdbSearchTitle(movieTitle,page){
                 
                 //CHANGE console log to MODAL display
                 modal.className="modal is-active";
+                modalCardTitle.textContent="Not Found"
+                modalCloseButton.setAttribute("data-id","not-found");
                 modalErrorMessageSpan.textContent= movieTitle + " not found on IMDB, please check the movie title and search again.";
             }
             else{
@@ -430,7 +434,7 @@ function displayMoreDetails(SingleMovieDetails){
     divSingleMovieHeadingGenresText.text(SingleMovieDetails["Genre"]);
 
     var divSingleMovieHeadingDescription = $("<h4>").addClass("title is-4");
-    divSingleMovieHeadingDescription.text("Description");
+    divSingleMovieHeadingDescription.text("Plot");
     var divSingleMovieHeadingDescriptionText = $("<h5>").addClass("subtitle is-5");
     divSingleMovieHeadingDescriptionText.text(SingleMovieDetails["Plot"]);
 
@@ -462,6 +466,7 @@ function displayMoreDetails(SingleMovieDetails){
     const btn = document.createElement("button");
     btn.className = "button is-primary btn-trigger";
     btn.innerHTML = "Trigger warnings and spoilers";
+    btn.addEventListener("click",triggerWarnings);
     
     divSingleMovieColumnNotification.append(btn);
     divSingleMovieColumns.append(divSingleMovieColumnNotification);
@@ -484,6 +489,7 @@ function removeFromCache(event)
     $(event.target).text("");
     modal.className="modal is-active";
     modalCloseButton.setAttribute("data-id","cache");
+    modalCardTitle.textContent="Cache Clear"
     modalErrorMessageSpan.textContent= "Removed from localStorage.";
 }
 
@@ -497,10 +503,15 @@ init();
 /// ---------------------------------- FUNCTION TO CLOSE MODAL (ERROR DISPLAYED WHEN SEARCHED MOVIE NOT FOUND) ---------------
 function closeModalDialog(event){
     modal.className="modal";
-    if ($(event.target).attr("data-id")!=="cache")
+    if ($(event.target).attr("data-id")==="not-found")
     {
         removeSearchAndPagination();
         sectionSearch.setAttribute("class","hero is-fullheight")
+    }
+    
+    if ($(event.target).attr("data-id")==="triggers")
+    {   
+        modalSection.removeChild(modalSection.lastChild);
     }
 }
 
@@ -513,22 +524,6 @@ const options = { // code provided by API docs
         //'X-RapidAPI-Key': '19e0589afbmsh556050275caa3029p18158fjsnbd5c863b8ce8'   // Murad
 	}
 };
-
-function useWords(SingleMovieDetails) { // calls wordsAPI to change words which will generate title
-    var lowerCase = SingleMovieDetails.toLowerCase(); // have to make strings lowercase to make sure includes() list works correctly
-    var wordsSplit = lowerCase.split(" "); // splits the title entered by each word
-
-    var wordsNotChanged = []; // empty array
-    var wordsChangedObject = {}; // empty object
-
-    var wordsChangedChecker = []; // empty array, checks array length
-
-    for (var j = 0; j < wordsSplit.length; j++) { // to get the array length of the words that will go through API call
-        if (!commonMovieTitleWords.includes(wordsSplit[j])){
-            wordsChangedChecker.push(wordsSplit[j]);
-        }
-    }
-}
 
 var lowerCase; // have to make strings lowercase to make sure includes() list works correctly
 var wordsSplit; // splits the title entered by each word
@@ -546,6 +541,7 @@ function useWords(SingleMovieDetails) { // calls wordsAPI to change words which 
     wordDone=-1;
     generateNewWords();
 }
+
 function generateNewWords(){
     wordDone++
     if (wordDone<=wordsLength)
@@ -566,6 +562,7 @@ function generateNewWords(){
          changeMovieTitle(wordsChanged.join(" "));
         }
 }
+
 function getFetch(word,i)
 {
         fetch('https://wordsapiv1.p.rapidapi.com/words/' + word, options) // to get a word you input: GET https://wordsapiv1.p.mashape.com/words/{word}
@@ -599,6 +596,7 @@ function getFetch(word,i)
             })
 }
 
+
 function changeMovieTitle(jWords)
 {
     console.log(jWords);
@@ -621,6 +619,20 @@ function triggerWarnings() {
         var index2 = Math.floor(Math.random() * triggerWarningsConcat.length);
         triggers.push(triggerWarningsConcat[index2]);
        }
-        
     }
+
+    //Display triggers in modal
+    var newOrderedList = document.createElement("ol");
+
+    for (var i=0; i<triggers.length; i++)
+    {
+        var newListItem = document.createElement("li");
+        newListItem.textContent=triggers[i];
+        newOrderedList.appendChild(newListItem);
+    }
+    
+    modalSection.appendChild(newOrderedList);
+    modal.className="modal is-active";
+    modalCloseButton.setAttribute("data-id","triggers");
+    modalCardTitle.textContent="Trigger Warnings"
 }
