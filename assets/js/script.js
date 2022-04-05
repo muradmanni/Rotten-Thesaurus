@@ -508,8 +508,8 @@ const options = { // code provided by API docs
 	method: 'GET',
 	headers: {
 		'X-RapidAPI-Host': 'wordsapiv1.p.rapidapi.com',
-		//'X-RapidAPI-Key': '6ecbaac172msh867cf483a4913b6p183836jsn739ee58e425f' // R143
-        'X-RapidAPI-Key': '19e0589afbmsh556050275ca3029p18158fjsnbd5c863b8ce8'   // Murad
+		'X-RapidAPI-Key': '6ecbaac172msh867cf483a4913b6p183836jsn739ee58e425f' // R143
+        //'X-RapidAPI-Key': '19e0589afbmsh556050275caa3029p18158fjsnbd5c863b8ce8'   // Murad
 	}
 };
 
