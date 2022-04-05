@@ -2,6 +2,12 @@
 ## Overview
 Rotten Thesaurus is a website that allows users to search thousands of movies with a search bar. Selecting a movie will show the alternative name(synonym) of the movie, genre, and other details, as well the trigger warnings which will allow users to view the spoilers.
 
+## User Story
+As a parody movie director,
+I want to search for a real movie and be given an alternate title.
+So that I can use it for my parody movie.
+
+
 ## Learning Objectives 
 ```
 Speak technically about a feature you implemented in your project
@@ -33,4 +39,6 @@ OMBD API
 The OMDb API is a web service to obtain movie information, all content and images on the site are contributed and maintained by our users.
 
 ## Demo of Rotten thesaurus
-![A user uses the rotten thesaurus.](./assets/Rotten Thesaurus gif.gif)
+
+
+<img src="./assets/Rotten Thesaurus gif.gif">
