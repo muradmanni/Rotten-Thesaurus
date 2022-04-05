@@ -450,10 +450,19 @@ function displayMoreDetails(SingleMovieDetails){
     
     if (valuesGotFrom==="LocalStorage")
     {
-        var clearCache = $("<label>").text("This is fetched from " + valuesGotFrom + ", Click to remove from cache").addClass("label");
+        var clearCache = $("<label>").text("This is fetched from " + valuesGotFrom + ", Click Clear button to remove from cache").addClass("label");
+        clearCache.attr("id","clear-cache");
         divSingleMovieColumnNotification.append(clearCache);
 
-        clearCache.on("click",removeFromCache);
+        
+    
+        var btnClearCache = $("<button>");
+        btnClearCache.addClass("button is-primary");
+        btnClearCache.attr("data-id","btn-clear");
+        btnClearCache.text("Clear");
+        divSingleMovieColumnNotification.append(btnClearCache);
+
+        btnClearCache.on("click",removeFromCache);
     }
 
     var divSingleMovieBackButton = $("<button>");
@@ -465,7 +474,7 @@ function displayMoreDetails(SingleMovieDetails){
         // This is a button for the trigger warning 
     const btn = document.createElement("button");
     btn.className = "button is-primary btn-trigger";
-    btn.innerHTML = "Trigger warnings and spoilers";
+    btn.innerHTML = "Show Trigger warnings and spoilers";
     btn.addEventListener("click",triggerWarnings);
     
     divSingleMovieColumnNotification.append(btn);
@@ -485,8 +494,13 @@ function displayMoreDetails(SingleMovieDetails){
 
 function removeFromCache(event)
 {
+    var ccc = $("#clear-cache");
+    ccc.remove();
+
     localStorage.removeItem(movieId)
     $(event.target).text("");
+
+    $(event.target).remove();
     modal.className="modal is-active";
     modalCloseButton.setAttribute("data-id","cache");
     modalCardTitle.textContent="Cache Clear"
@@ -503,6 +517,8 @@ init();
 /// ---------------------------------- FUNCTION TO CLOSE MODAL (ERROR DISPLAYED WHEN SEARCHED MOVIE NOT FOUND) ---------------
 function closeModalDialog(event){
     modal.className="modal";
+    modalErrorMessageSpan.textContent= "";
+
     if ($(event.target).attr("data-id")==="not-found")
     {
         removeSearchAndPagination();
@@ -512,7 +528,10 @@ function closeModalDialog(event){
     if ($(event.target).attr("data-id")==="triggers")
     {   
         modalSection.removeChild(modalSection.lastChild);
+
     }
+
+    
 }
 
 // words API related code
@@ -549,7 +568,7 @@ function generateNewWords(){
             if (commonMovieTitleWords.includes(wordsSplit[wordDone]))
             {
                 wordsChanged.push(wordsSplit[wordDone]);
-                console.log("common word " + wordsSplit[wordDone]);
+    
                 generateNewWords();
             }
             else{
@@ -558,7 +577,7 @@ function generateNewWords(){
         }
         else{
          wordsChanged.splice(-1);
-         console.log(wordsChanged.join(" "));
+    
          changeMovieTitle(wordsChanged.join(" "));
         }
 }
@@ -578,7 +597,7 @@ function getFetch(word,i)
                     //console.log(resultsCheck);
                 }
                 if (keysCheck.includes("results") && resultsCheck.includes("synonyms")) { // checks that those keys are in the object
-                    console.log(data["results"][0]["synonyms"][0]);
+                    
                     wordsChanged.push(data["results"][0]["synonyms"][0]); // pushes the first synonym of the first result into wordsChanged
                 } else if (keysCheck.includes("results") && resultsCheck.includes("antonyms")) { // checks that those keys are in the object
                     wordsChanged.push(data["results"][0]["antonyms"][0]); // pushes the first antonym of the first result into wordsChanged
@@ -599,7 +618,7 @@ function getFetch(word,i)
 
 function changeMovieTitle(jWords)
 {
-    console.log(jWords);
+    
     var divColumnTitle=$(".new-movie");
     var headingMovieTitle=$(divColumnTitle).find('h3:first');
     headingMovieTitle.text(jWords);

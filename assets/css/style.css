@@ -27,13 +27,12 @@ img:hover {
     box-shadow: 0 5px 30px black;
 }
 
-.btn-trigger{
+/* .btn-trigger{
     margin-left: 20px;
-}
+} */
 
 .display-result{
     margin: 15px;
-    ;
 }
 
 .modal-content-width{
@@ -48,6 +47,10 @@ img:hover {
     cursor: pointer;
 }
 
+button{
+    margin-right: 20px;
+}
+
 #btn-search.button.is-primary {
     background: #00d1b2;
 }
@@ -57,6 +60,7 @@ img:hover {
 
 .button.is-primary.btn-trigger {
     background: red;
+    
 }
 
 .notification.is-primary {
@@ -76,7 +80,6 @@ h5{
 
 .label{
     font-size: 10px;
-    cursor: pointer;
 }
 
 ol{
