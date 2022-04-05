@@ -26,6 +26,8 @@ var omdbSingleSearchUrl = "https://www.omdbapi.com/?apikey=" + omdbApiKey + "&i=
 var modal = document.querySelector("#modal");
 var modalErrorMessageSpan = document.querySelector("#error-message");
 var modalCloseButton = document.querySelector("#btn-modal-close");
+var modalCardTitle = document.querySelector("#modal-card-title");
+
 // ------------------------- Variables used to perform and maintain pagination -------------------------
 var pageNumber;
 var totalPages;
@@ -73,6 +75,7 @@ function omdbSearchTitle(movieTitle,page){
                 
                 //CHANGE console log to MODAL display
                 modal.className="modal is-active";
+                modalCardTitle.textContent="Not Found"
                 modalErrorMessageSpan.textContent= movieTitle + " not found on IMDB, please check the movie title and search again.";
             }
             else{
@@ -484,6 +487,7 @@ function removeFromCache(event)
     $(event.target).text("");
     modal.className="modal is-active";
     modalCloseButton.setAttribute("data-id","cache");
+    modalCardTitle.textContent="Cache Clear"
     modalErrorMessageSpan.textContent= "Removed from localStorage.";
 }
 
@@ -508,8 +512,8 @@ const options = { // code provided by API docs
 	method: 'GET',
 	headers: {
 		'X-RapidAPI-Host': 'wordsapiv1.p.rapidapi.com',
-		'X-RapidAPI-Key': '6ecbaac172msh867cf483a4913b6p183836jsn739ee58e425f' // R143
-        //'X-RapidAPI-Key': '19e0589afbmsh556050275caa3029p18158fjsnbd5c863b8ce8'   // Murad
+		//'X-RapidAPI-Key': '6ecbaac172msh867cf483a4913b6p183836jsn739ee58e425f' // R143
+        'X-RapidAPI-Key': '19e0589afbmsh556050275ca3029p18158fjsnbd5c863b8ce8'   // Murad
 	}
 };
 
