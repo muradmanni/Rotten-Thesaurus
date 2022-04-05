@@ -57,7 +57,7 @@ function toggleSearchButton(){
 // ------------------------ sending the search title to omdbSearchTitle function to fetch from omdb server -------------
 function searchMovie(event){
     event.preventDefault();
-    omdbSearchTitle(textboxSearch.value,1);
+    omdbSearchTitle(textboxSearch.value.trim(),1);
     
     sectionSearch.setAttribute("class","hero");
 }
@@ -104,9 +104,11 @@ function omdbGetSingleMovieDetails(omdbid){
                 //CHANGE console log to MODAL display
             }
             else{
-                console.log(data);
+                //console.log(data);
                 localStorage.setItem(omdbid,JSON.stringify(data));
-                return data;
+                //SingleMovieDetails = (JSON.parse(localStorage.getItem(clickedMovieId)));
+                displayMoreDetails(data);
+                //return data;
             }
           });
         } else {
@@ -162,9 +164,6 @@ function showSearchResult(data){
             poster="./assets/images/image-not-available.jpg";
         }
     
-        //--------------------   REQUESTIN TO FETCH and STORING ALL INDIVIDUAL RESULT IN LOCALSTORAGE -----------
-        var individualMovieDetails = omdbGetSingleMovieDetails(imdbID);
-        
         //-------------------------------------------------------------------------------------------------------
 
         // ------------------- GENERATE RESULT AND SHOW -------------------
@@ -354,13 +353,31 @@ function checkPaginationClick(event){
 }
 
 // -------------------FUNCTION TO BE CALLED WHEN A MOVIE POSTER IS CLICKED ----------- ------ -----------//
-
+var valuesGotFrom;
 function getMoreDetails(event){
-    var clickedMovie = $(event.target).data("id");
-    console.log(clickedMovie);
-    var SingleMovieDetails = (JSON.parse(localStorage.getItem(clickedMovie)));
+    
+    var clickedMovieId = $(event.target).data("id");
+    console.log(clickedMovieId);
+    var SingleMovieDetails = (JSON.parse(localStorage.getItem(clickedMovieId)));
+    if (SingleMovieDetails===null)
+    {
+        //--------------------   REQUESTIN TO FETCH and STORING ALL INDIVIDUAL RESULT IN LOCALSTORAGE -----------
+        // var individualMovieDetails = 
+        valuesGotFrom = "Server";
+        omdbGetSingleMovieDetails(clickedMovieId);
+        SingleMovieDetails = (JSON.parse(localStorage.getItem(clickedMovieId)));
+    }
+    else{
+        valuesGotFrom="LocalStorage";
+        displayMoreDetails(SingleMovieDetails);
+    // console.log(SingleMovieDetails);
+    }
+}
+
+function displayMoreDetails(SingleMovieDetails){
+    console.log(valuesGotFrom);
     console.log(SingleMovieDetails);
-    console.log(SingleMovieDetails["Title"]);
+    useWords(SingleMovieDetails["Title"]);
     removeSearchAndPagination();
 
     bd.addClass("is-fullheight");
@@ -372,44 +389,78 @@ function getMoreDetails(event){
 
     var divSingleMovieColumns = $("<div>");
     divSingleMovieColumns.addClass("columns  is-multiline is-centered");
+    var divSingleMovieColumnNotificationTitle = $("<div>");
+    divSingleMovieColumnNotificationTitle.addClass("column new-movie");
+    divSingleMovieColumnNotificationTitle.attr("data-new","new-movie-title")
+
+    var newMovieTitle = $("<h3>");
+    newMovieTitle.addClass("title is-4");
+
+    divSingleMovieColumnNotificationTitle.append(newMovieTitle);
+
     var divSingleMovieColumnNotification = $("<div>");
     divSingleMovieColumnNotification.addClass("column notification test is-3 is-3-fullhd is-3-desktop is-6-tablet is-12-mobile");
+    
+
     var imageMovie = $("<img>");
     imageMovie.attr("src",SingleMovieDetails['Poster']==='N/A'? "./assets/images/image-not-available.jpg":SingleMovieDetails['Poster']);
 
+    
     divSingleMovieColumnNotification.append(imageMovie);
     divSingleMovieColumns.append(divSingleMovieColumnNotification);
 
     var divSingleMovieColumnNotification = $("<div>");
     divSingleMovieColumnNotification.addClass("column test is-9 is-9-fullhd is-9-desktop is-6-tablet is-12-mobile");
-    var divSingleMovieOrderedList = $("<ol>");
-        var divSingleMovieOrderedListItemTitle = $("<li>");
-        divSingleMovieOrderedListItemTitle.text("Title ---> " + SingleMovieDetails["Title"]);
-
-        var divSingleMovieOrderedListItemPlot = $("<li>");
-        divSingleMovieOrderedListItemPlot.text("Plot ---> " + SingleMovieDetails["Plot"]);
-        // This is a button for the trigger warning 
-        const btn = document.createElement("button");
-        btn.innerHTML = "Trigger warnings and spoilers";
 
 
-    divSingleMovieOrderedList.append(divSingleMovieOrderedListItemTitle);    
-    divSingleMovieOrderedList.append(divSingleMovieOrderedListItemPlot);
+    var divSingleMovieHeadingDirector = $("<h4>").addClass("title is-4");
+    divSingleMovieHeadingDirector.text("Director");
+    var divSingleMovieHeadingDirectorText = $("<h5>").addClass("subtitle is-5");
+    divSingleMovieHeadingDirectorText.text(SingleMovieDetails["Director"]);
 
-    divSingleMovieColumnNotification.append(divSingleMovieOrderedList);
-    divSingleMovieColumnNotification.append(btn);
-    divSingleMovieColumns.append(divSingleMovieColumnNotification);
+    var divSingleMovieHeadingMainCast = $("<h4>").addClass("title is-4");
+    divSingleMovieHeadingMainCast.text("Main Cast");
+    var divSingleMovieHeadingMainCastText = $("<h5>").addClass("subtitle is-5");
+    divSingleMovieHeadingMainCastText.text(SingleMovieDetails["Actors"]);
 
-    var divSingleMovieContainerBack = $("<div>");
-    divSingleMovieContainerBack.addClass("container is-fluid");
+    var divSingleMovieHeadingGenres = $("<h4>").addClass("title is-4");
+    divSingleMovieHeadingGenres.text("Genres");
+    var divSingleMovieHeadingGenresText = $("<h5>").addClass("subtitle is-5");
+    divSingleMovieHeadingGenresText.text(SingleMovieDetails["Genre"]);
+
+    var divSingleMovieHeadingDescription = $("<h4>").addClass("title is-4");
+    divSingleMovieHeadingDescription.text("Description");
+    var divSingleMovieHeadingDescriptionText = $("<h5>").addClass("subtitle is-5");
+    divSingleMovieHeadingDescriptionText.text(SingleMovieDetails["Plot"]);
+
+    divSingleMovieColumnNotification.append(divSingleMovieHeadingDirector);
+    divSingleMovieColumnNotification.append(divSingleMovieHeadingDirectorText);
+    divSingleMovieColumnNotification.append(divSingleMovieHeadingMainCast);
+    divSingleMovieColumnNotification.append(divSingleMovieHeadingMainCastText);
+    divSingleMovieColumnNotification.append(divSingleMovieHeadingGenres);
+    divSingleMovieColumnNotification.append(divSingleMovieHeadingGenresText);
+    divSingleMovieColumnNotification.append(divSingleMovieHeadingDescription);
+    divSingleMovieColumnNotification.append(divSingleMovieHeadingDescriptionText);
 
     var divSingleMovieBackButton = $("<button>");
     divSingleMovieBackButton.addClass("button is-primary");
     divSingleMovieBackButton.attr("data-id","btn-back");
     divSingleMovieBackButton.attr("data-label",pageNumber);
     divSingleMovieBackButton.text("Back");
+    divSingleMovieColumnNotification.append(divSingleMovieBackButton);
+        // This is a button for the trigger warning 
+    const btn = document.createElement("button");
+    btn.className = "button is-primary btn-trigger";
+    btn.innerHTML = "Trigger warnings and spoilers";
+    
+    divSingleMovieColumnNotification.append(btn);
+    divSingleMovieColumns.append(divSingleMovieColumnNotification);
+    
+    var divSingleMovieContainerBack = $("<div>");
+    divSingleMovieContainerBack.addClass("container is-fluid");
 
-    divSingleMovieContainerBack.append(divSingleMovieBackButton);
+    
+    sectionSingleMovieResult.append(divSingleMovieColumnNotificationTitle);
     divSingleMovieContainer.append(divSingleMovieColumns);
     sectionSingleMovieResult.append(divSingleMovieContainer);
     sectionSingleMovieResult.append(divSingleMovieContainerBack);
@@ -435,7 +486,8 @@ const options = { // code provided by API docs
 	method: 'GET',
 	headers: {
 		'X-RapidAPI-Host': 'wordsapiv1.p.rapidapi.com',
-		'X-RapidAPI-Key': '6ecbaac172msh867cf483a4913b6p183836jsn739ee58e425f'
+		'X-RapidAPI-Key': '6ecbaac172msh867cf483a4913b6p183836jsn739ee58e425f' // R143
+        //'X-RapidAPI-Key': '19e0589afbmsh556050275caa3029p18158fjsnbd5c863b8ce8'   // Murad
 	}
 };
 
@@ -546,8 +598,94 @@ console.log(wordsNotChanged);
         }
     joinedWords = joinedWords.join(" "); // the final join which creates a string
     console.log(joinedWords); // to be commented out once the following below occurs
+    changeMovieTitle(joinedWords);
     // insert.textContent <here> = joinedWords // puts the string onto the page
 }
+
+function changeMovieTitle(jWords)
+{
+    var divColumnTitle=$(".new-movie");
+    console.log(divColumnTitle);
+    var headingMovieTitle=$(divColumnTitle).find('h3:first');
+    headingMovieTitle.text(jWords);
+    
+}
+// var lowerCase; // have to make strings lowercase to make sure includes() list works correctly
+// var wordsSplit; // splits the title entered by each word
+// var wordsNotChanged = []; // empty array
+// var wordsChanged = []; // empty array
+// var wordsChangedChecker = []; // empty array, checks array length
+// var wordDone=0;
+// var wordsLength=0;
+
+// function useWords(SingleMovieDetails) { // calls wordsAPI to change words which will generate title
+//     lowerCase = SingleMovieDetails.toLowerCase(); // have to make strings lowercase to make sure includes() list works correctly
+//     wordsSplit = lowerCase.split(" "); // splits the title entered by each word
+//     wordsChanged=[];
+     
+//     wordsLength=wordsSplit.length;
+//     wordDone=-1;
+//     generateNewWords();
+// }
+
+// function generateNewWords(){
+//     wordDone++
+//     if (wordDone<=wordsLength)
+//         {
+//             if (commonMovieTitleWords.includes(wordsSplit[wordDone]))
+//             {
+//                 wordsChanged.push(wordsSplit[wordDone]);
+//                 console.log("common word " + wordsSplit[wordDone]);
+//                 generateNewWords();
+//             }
+//             else{
+//                 getFetch(wordsSplit[wordDone], wordDone);
+//             }
+//         }
+//         else{
+//          wordsChanged.splice(-1);
+//          console.log(wordsChanged.join(" "));
+//         }
+// }
+
+// function getFetch(word,i)
+// {
+//         fetch('https://wordsapiv1.p.rapidapi.com/words/' + word, options) // to get a word you input: GET https://wordsapiv1.p.mashape.com/words/{word}
+//             // .then(response => response.json()) // code provided by API docs but not used.
+//             // .then(response => console.log(response))
+//             // .catch(err => console.error(err))
+//             .then(function (response) {
+//                 return response.json();
+//             })
+//             .then(function (data) {
+//                 // console.log(data);
+//                 var keysCheck = Object.keys(data); // gets the object key names from the call 
+//                 // console.log(keysCheck);
+//                 if (keysCheck.includes("results")) { // to check if the word called has this key
+//                     var resultsCheck = Object.keys(data.results[0]); // checks the keys inside array 0
+//                     //console.log(resultsCheck);
+//                 }
+//                 if (keysCheck.includes("results") && resultsCheck.includes("synonyms")) { // checks that those keys are in the object
+//                     console.log(data["results"][0]["synonyms"][0]);
+//                     wordsChanged.push(data["results"][0]["synonyms"][0]); // pushes the first synonym of the first result into wordsChanged
+                     
+//                 } else if (keysCheck.includes("results") && resultsCheck.includes("antonyms")) { // checks that those keys are in the object
+//                     wordsChanged.push(data["results"][0]["antonyms"][0]); // pushes the first antonym of the first result into wordsChanged
+                     
+//                 } else if (keysCheck.includes("results") && resultsCheck.includes("typeOf")) { // checks that those keys are in the object
+//                     wordsChanged.push(data["results"][0]["typeOf"][0]); // pushes the first typeOf of the first result into wordsChanged
+                     
+//                 } else {
+//                     wordsChanged.push(word); // returns the original word entered
+                     
+//                 }
+//                 console.log("comng here");
+//                 console.log(i);
+//                 generateNewWords();
+                
+//             })   
+// }
+
 
 function triggerWarnings() {
     var triggers = []
