@@ -515,15 +515,15 @@ function closeModalDialog(event){
     }
 }
 
+// words API related code
 const options = { // code provided by API docs
 	method: 'GET',
 	headers: {
 		'X-RapidAPI-Host': 'wordsapiv1.p.rapidapi.com',
-		//'X-RapidAPI-Key': '6ecbaac172msh867cf483a4913b6p183836jsn739ee58e425f' // 
-        'X-RapidAPI-Key': '19e0589afbmsh556050275ca3029p18158fjsnbd5c863b8ce8'   // Murad
+		'X-RapidAPI-Key': '6ecbaac172msh867cf483a4913b6p183836jsn739ee58e425f' // 
+        //'X-RapidAPI-Key': '19e0589afbmsh556050275caa3029p18158fjsnbd5c863b8ce8'   // Murad
 	}
 };
-
 
 var lowerCase; // have to make strings lowercase to make sure includes() list works correctly
 var wordsSplit; // splits the title entered by each word
@@ -537,7 +537,6 @@ function useWords(SingleMovieDetails) { // calls wordsAPI to change words which 
     lowerCase = SingleMovieDetails.toLowerCase(); // have to make strings lowercase to make sure includes() list works correctly
     wordsSplit = lowerCase.split(" "); // splits the title entered by each word
     wordsChanged=[];
-     
     wordsLength=wordsSplit.length;
     wordDone=-1;
     generateNewWords();
@@ -567,15 +566,12 @@ function generateNewWords(){
 function getFetch(word,i)
 {
         fetch('https://wordsapiv1.p.rapidapi.com/words/' + word, options) // to get a word you input: GET https://wordsapiv1.p.mashape.com/words/{word}
-            // .then(response => response.json()) // code provided by API docs but not used.
-            // .then(response => console.log(response))
-            // .catch(err => console.error(err))
             .then(function (response) {
                 return response.json();
             })
             .then(function (data) {
                 // console.log(data);
-                var keysCheck = Object.keys(data); // gets the object key names from the call 
+                var keysCheck = Object.keys(data); // gets the object key names from the call
                 // console.log(keysCheck);
                 if (keysCheck.includes("results")) { // to check if the word called has this key
                     var resultsCheck = Object.keys(data.results[0]); // checks the keys inside array 0
@@ -584,16 +580,12 @@ function getFetch(word,i)
                 if (keysCheck.includes("results") && resultsCheck.includes("synonyms")) { // checks that those keys are in the object
                     console.log(data["results"][0]["synonyms"][0]);
                     wordsChanged.push(data["results"][0]["synonyms"][0]); // pushes the first synonym of the first result into wordsChanged
-                     
                 } else if (keysCheck.includes("results") && resultsCheck.includes("antonyms")) { // checks that those keys are in the object
                     wordsChanged.push(data["results"][0]["antonyms"][0]); // pushes the first antonym of the first result into wordsChanged
-                     
                 } else if (keysCheck.includes("results") && resultsCheck.includes("typeOf")) { // checks that those keys are in the object
                     wordsChanged.push(data["results"][0]["typeOf"][0]); // pushes the first typeOf of the first result into wordsChanged
-                     
                 } else {
                     wordsChanged.push(word); // returns the original word entered
-                     
                 }
                 // console.log("comng here");
                 // console.log(i);
@@ -601,14 +593,13 @@ function getFetch(word,i)
                     wordsChanged[j] = wordsChanged[j].charAt(0).toUpperCase() + wordsChanged[j].slice(1); // in the jth index of the array, the first character changes to uppercase and is then concatenated with the rest of the word that was sliced from the second letter
                 }
                  generateNewWords();
-                
-                
-            })   
+            })
 }
 
 
 function changeMovieTitle(jWords)
 {
+    console.log(jWords);
     var divColumnTitle=$(".new-movie");
     var headingMovieTitle=$(divColumnTitle).find('h3:first');
     headingMovieTitle.text(jWords);

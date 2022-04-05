@@ -49,10 +49,14 @@ img:hover {
 }
 
 #btn-search.button.is-primary {
-    background: orange;
+    background: #00d1b2;
 }
 .box {
     font-size: large;
+}
+
+.button.is-primary.btn-trigger {
+    background: red;
 }
 
 .notification.is-primary {
