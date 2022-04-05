@@ -30,6 +30,7 @@ var modalCloseButton = document.querySelector("#btn-modal-close");
 var pageNumber;
 var totalPages;
 var totalMovies;
+var movieId;
 
 var randomWordGenerator = "?random=true"; // parameter for generating random words
 var enteredInput = "test"; // form-input.value is supposed to be entered here, not a string.
@@ -69,7 +70,7 @@ function omdbSearchTitle(movieTitle,page){
         if (response.ok) {
           response.json().then(function (data) {
             if (data["Response"]==="False"){
-                console.log("Not Found");
+                
                 //CHANGE console log to MODAL display
                 modal.className="modal is-active";
                 modalErrorMessageSpan.textContent= movieTitle + " not found on IMDB, please check the movie title and search again.";
@@ -216,7 +217,6 @@ function calculateTotalPages(totalMovies){
     {
         generatePagination();
     }
-    console.log("Total Movies " + totalMovies + "     totalPages " +totalPages);
 }
 
 // ------------------------------ GENERATING PAGINATION ----------------------------------------
@@ -319,14 +319,14 @@ function generatePagination(){
     navElement.appendChild(ulElement);
     sectionPagination.appendChild(navElement);
     document.body.appendChild(sectionPagination);
-    var test = document.getElementsByClassName("pagination-link");
-    console.log(test.length);
+    var currentPaginationLink = document.getElementsByClassName("pagination-link");
     
-    for (var i=0; i<test.length; i++)
+    
+    for (var i=0; i<currentPaginationLink.length; i++)
     {
-        if(pageNumber== test[i].getAttribute("data-label"))
+        if(pageNumber== currentPaginationLink[i].getAttribute("data-label"))
         {
-            test[i].className="pagination-link is-current";
+            currentPaginationLink[i].className="pagination-link is-current";
         }
 
     }
@@ -344,7 +344,7 @@ function checkPaginationClick(event){
     {
         if (typeof(parseInt((event.target).textContent))==="number")
         {
-             console.log(pageNumber);
+             
             pageNumber=$(event.target).attr("data-label");
             omdbSearchTitle(textboxSearch.value,pageNumber);
         }
@@ -357,7 +357,7 @@ var valuesGotFrom;
 function getMoreDetails(event){
     
     var clickedMovieId = $(event.target).data("id");
-    console.log(clickedMovieId);
+    
     var SingleMovieDetails = (JSON.parse(localStorage.getItem(clickedMovieId)));
     if (SingleMovieDetails===null)
     {
@@ -375,8 +375,9 @@ function getMoreDetails(event){
 }
 
 function displayMoreDetails(SingleMovieDetails){
-    console.log(valuesGotFrom);
-    console.log(SingleMovieDetails);
+    //console.log(valuesGotFrom);
+    //console.log(SingleMovieDetails);
+    movieId=SingleMovieDetails["imdbID"];
     useWords(SingleMovieDetails["Title"]);
     removeSearchAndPagination();
 
@@ -433,6 +434,7 @@ function displayMoreDetails(SingleMovieDetails){
     var divSingleMovieHeadingDescriptionText = $("<h5>").addClass("subtitle is-5");
     divSingleMovieHeadingDescriptionText.text(SingleMovieDetails["Plot"]);
 
+
     divSingleMovieColumnNotification.append(divSingleMovieHeadingDirector);
     divSingleMovieColumnNotification.append(divSingleMovieHeadingDirectorText);
     divSingleMovieColumnNotification.append(divSingleMovieHeadingMainCast);
@@ -441,6 +443,14 @@ function displayMoreDetails(SingleMovieDetails){
     divSingleMovieColumnNotification.append(divSingleMovieHeadingGenresText);
     divSingleMovieColumnNotification.append(divSingleMovieHeadingDescription);
     divSingleMovieColumnNotification.append(divSingleMovieHeadingDescriptionText);
+    
+    if (valuesGotFrom==="LocalStorage")
+    {
+        var clearCache = $("<label>").text("This is fetched from " + valuesGotFrom + ", Click to remove from cache").addClass("label");
+        divSingleMovieColumnNotification.append(clearCache);
+
+        clearCache.on("click",removeFromCache);
+    }
 
     var divSingleMovieBackButton = $("<button>");
     divSingleMovieBackButton.addClass("button is-primary");
@@ -468,6 +478,15 @@ function displayMoreDetails(SingleMovieDetails){
 
 }
 
+function removeFromCache(event)
+{
+    localStorage.removeItem(movieId)
+    $(event.target).text("");
+    modal.className="modal is-active";
+    modalCloseButton.setAttribute("data-id","cache");
+    modalErrorMessageSpan.textContent= "Removed from localStorage.";
+}
+
 function init(){
     btnSearch.disabled = true;
     //getSearchHistory(); 
@@ -476,9 +495,13 @@ function init(){
 init();
 
 /// ---------------------------------- FUNCTION TO CLOSE MODAL (ERROR DISPLAYED WHEN SEARCHED MOVIE NOT FOUND) ---------------
-function closeModalDialog(){
+function closeModalDialog(event){
     modal.className="modal";
-    //console.log("its clicking");
+    if ($(event.target).attr("data-id")!=="cache")
+    {
+        removeSearchAndPagination();
+        sectionSearch.setAttribute("class","hero is-fullheight")
+    }
 }
 
 // words API related code
@@ -572,8 +595,7 @@ function useWords(SingleMovieDetails) { // calls wordsAPI to change words which 
 }
 
 function joinWords(wordsChanged, wordsNotChanged) { // we get the words for the movie title after changing it and put it back together
-console.log(wordsChanged);
-console.log(wordsNotChanged);
+
     var joinedWords = []; // empty array for joining the words
 
         for (var i = 0; i < wordsNotChanged.length; i++) { // checks the length of wordsNotChanged array because that contains the correct length
@@ -597,7 +619,6 @@ console.log(wordsNotChanged);
             joinedWords[j] = joinedWords[j].charAt(0).toUpperCase() + joinedWords[j].slice(1); // in the jth index of the array, the first character changes to uppercase and is then concatenated with the rest of the word that was sliced from the second letter
         }
     joinedWords = joinedWords.join(" "); // the final join which creates a string
-    console.log(joinedWords); // to be commented out once the following below occurs
     changeMovieTitle(joinedWords);
     // insert.textContent <here> = joinedWords // puts the string onto the page
 }
@@ -605,7 +626,6 @@ console.log(wordsNotChanged);
 function changeMovieTitle(jWords)
 {
     var divColumnTitle=$(".new-movie");
-    console.log(divColumnTitle);
     var headingMovieTitle=$(divColumnTitle).find('h3:first');
     headingMovieTitle.text(jWords);
     
@@ -691,7 +711,7 @@ function triggerWarnings() {
     var triggers = []
 
     var firstRoll = Math.ceil(Math.random() * 4);
-    console.log(firstRoll);
+    // console.log(firstRoll);
     
     for (let i = 0; i < firstRoll; i++) {
        var index = Math.floor(Math.random() * triggerWarningsConcat.length);
@@ -702,7 +722,7 @@ function triggerWarnings() {
         triggers.push(triggerWarningsConcat[index2]);
        }
         
-        console.log(triggers)
+       // console.log(triggers)
     }
 }
 
