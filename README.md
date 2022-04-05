@@ -40,7 +40,7 @@ The OMDb API is a web service to obtain movie information, all content and image
 
 ## Deployed application
 
-Link to deployed application: [https://marko-petreski.github.io/Rotten-Thesaurus/](https://marko-petreski.github.io/Rotten-Thesaurus/)
+Link to the deployed application: [https://marko-petreski.github.io/Rotten-Thesaurus/](https://marko-petreski.github.io/Rotten-Thesaurus/)
 
 ## Demo of Rotten thesaurus
 
