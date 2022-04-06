@@ -35,7 +35,26 @@ var totalMovies;
 var movieId;
 
 var randomWordGenerator = "?random=true"; // parameter for generating random words
-var enteredInput = "test"; // form-input.value is supposed to be entered here, not a string.
+//var enteredInput  // form-input.value is supposed to be entered here, not a string.
+
+//----------------------- WORDs API VARIABLES ----------------------------------
+const options = { // code provided by API docs
+	method: 'GET',
+	headers: {
+		'X-RapidAPI-Host': 'wordsapiv1.p.rapidapi.com',
+		'X-RapidAPI-Key': '6ecbaac172msh867cf483a4913b6p183836jsn739ee58e425f' // 
+        //'X-RapidAPI-Key': '19e0589afbmsh556050275caa3029p18158fjsnbd5c863b8ce8'   // Murad
+	}
+};
+
+var lowerCase; // have to make strings lowercase to make sure includes() list works correctly
+var wordsSplit; // splits the title entered by each word
+var wordsNotChanged = []; // empty array
+var wordsChanged = []; // empty array
+var wordsChangedChecker = []; // empty array, checks array length
+var wordDone=0;
+var wordsLength=0;
+
 
 btnSearch.addEventListener("click",searchMovie);    //event listener for Search button on index.html
 textboxSearch.addEventListener("keyup", toggleSearchButton);    //event listener for search text box on index.html
@@ -81,11 +100,6 @@ function omdbSearchTitle(movieTitle,page){
             }
             else{
                 sectionSearch.setAttribute("class","hero"); //Moving the searchbox at top from the middle of the page.
-                // if (!movieSearchHistory.includes(movieTitle.toLowerCase()))
-                // {
-                //     movieSearchHistory.push(movieTitle.toLowerCase());
-                // }
-                //localStorage.setItem("searchHistory", JSON.stringify(movieSearchHistory)); // no need of this
                 localStorage.setItem("currentPage",page);
                 showSearchResult(data);
             }
@@ -105,20 +119,22 @@ function omdbGetSingleMovieDetails(omdbid){
         if (response.ok) {
           response.json().then(function (data) {
             if (data["Response"]==="False"){
-                console.log("Not Found");
-                //CHANGE console log to MODAL display
+                // MODAL display TO SHOW ERROR
+                modal.className="modal is-active";
+                modalCardTitle.textContent="Not Found"
+                modalCloseButton.setAttribute("data-id","not-found");
+                modalErrorMessageSpan.textContent= "No proper response received from server.";
             }
             else{
-                //console.log(data);
                 localStorage.setItem(omdbid,JSON.stringify(data));
-                //SingleMovieDetails = (JSON.parse(localStorage.getItem(clickedMovieId)));
                 displayMoreDetails(data);
-                //return data;
             }
           });
         } else {
             //if response not ok have to show error in modal
             console.log("server error.");
+            modal.className="modal is-active";
+            modalErrorMessageSpan.textContent= "No response from server.";
         }
       });
 }
@@ -134,7 +150,6 @@ function removeSearchAndPagination(){
         var sectionPagination = document.querySelector("#section-pagination");
         if (sectionPagination!==null)
         {
-            // alert("i am in");
             document.body.removeChild(sectionPagination);
         }
     }
@@ -172,10 +187,6 @@ function showSearchResult(data){
         //-------------------------------------------------------------------------------------------------------
 
         // ------------------- GENERATE RESULT AND SHOW -------------------
-        // var divOutBox = document.createElement("div");
-        // divOutBox.className="column is-3-fullhd  is-3-desktop is-6-tablet is-12-mobile";
-        // var divInsideBox = document.createElement("div");
-        // divInsideBox.className="notification is-primary has-text-centered";
 
         var divOutBox = $("<div>");
         divOutBox.addClass("column is-3-fullhd  is-3-desktop is-6-tablet is-12-mobile");
@@ -183,14 +194,12 @@ function showSearchResult(data){
         divInsideBox.addClass("notification is-primary has-text-centered");
 
         var imgMovieImage = $("<img>");
-        // imgMovieImage.attr("id","img-movie");
         imgMovieImage.attr("data-id",imdbID);
         imgMovieImage.attr("src",poster);
         imgMovieImage.addClass("cursor img-movie");
 
         var h3MovieTitle =$("<h3>");
         h3MovieTitle.addClass("title is-6 cursor img-movie");
-        // h3MovieTitle.attr("id","img-movie");
         h3MovieTitle.attr("data-id",imdbID);
         h3MovieTitle.text(movieTitle);
         
@@ -270,7 +279,6 @@ function generatePagination(){
             loopFinishingInt=totalPages;
         }
     }
-    // alert("Page number is = " + pageNumber + "    Loop start Int is " + loopStartingInt);ts
 
     liElement = document.createElement("li");            
     aElement=document.createElement("a");
@@ -290,18 +298,18 @@ function generatePagination(){
         liElement.appendChild(aElement);
         ulElement.appendChild(liElement);
     }
-        //for(var i=loopStartingInt; i<(loopStartingInt+loopFinishingInt); i++){    
-        for(var i=loopStartingInt; i<(loopFinishingInt); i++){    
-                liElement = document.createElement("li");            
-                aElement=document.createElement("a");
-                aElement.className="pagination-link";
-                aElement.setAttribute("data-label",i);
-                aElement.textContent=i;
-            
-            liElement.appendChild(aElement);
-            ulElement.appendChild(liElement);
-        }
+
+    for(var i=loopStartingInt; i<(loopFinishingInt); i++){    
+        liElement = document.createElement("li");            
+        aElement=document.createElement("a");
+        aElement.className="pagination-link";
+        aElement.setAttribute("data-label",i);
+        aElement.textContent=i;
     
+        liElement.appendChild(aElement);
+        ulElement.appendChild(liElement);
+    }
+
     if (pageNumber<(totalPages-2) && totalPages>8){
         liElement = document.createElement("li");
         aElement=document.createElement("a");
@@ -319,13 +327,11 @@ function generatePagination(){
     liElement.appendChild(aElement);
     ulElement.appendChild(liElement);
 
-
     navElement.appendChild(ulElement);
     sectionPagination.appendChild(navElement);
     document.body.appendChild(sectionPagination);
     var currentPaginationLink = document.getElementsByClassName("pagination-link");
-    
-    
+        
     for (var i=0; i<currentPaginationLink.length; i++)
     {
         if(pageNumber== currentPaginationLink[i].getAttribute("data-label"))
@@ -366,7 +372,6 @@ function getMoreDetails(event){
     if (SingleMovieDetails===null)
     {
         //--------------------   REQUESTIN TO FETCH and STORING ALL INDIVIDUAL RESULT IN LOCALSTORAGE -----------
-        // var individualMovieDetails = 
         valuesGotFrom = "Server";
         omdbGetSingleMovieDetails(clickedMovieId);
         SingleMovieDetails = (JSON.parse(localStorage.getItem(clickedMovieId)));
@@ -374,13 +379,11 @@ function getMoreDetails(event){
     else{
         valuesGotFrom="LocalStorage";
         displayMoreDetails(SingleMovieDetails);
-    // console.log(SingleMovieDetails);
     }
 }
 
 function displayMoreDetails(SingleMovieDetails){
-    //console.log(valuesGotFrom);
-    //console.log(SingleMovieDetails);
+    
     movieId=SingleMovieDetails["imdbID"];
     useWords(SingleMovieDetails["Title"]);
     removeSearchAndPagination();
@@ -404,12 +407,11 @@ function displayMoreDetails(SingleMovieDetails){
     divSingleMovieColumnNotificationTitle.append(newMovieTitle);
 
     var divSingleMovieColumnNotification = $("<div>");
-    divSingleMovieColumnNotification.addClass("column notification test is-3 is-3-fullhd is-3-desktop is-6-tablet is-12-mobile");
+    divSingleMovieColumnNotification.addClass("column notification test is-3 is-3-fullhd is-3-desktop is-6-tablet is-12-mobile do-center");
     
 
     var imageMovie = $("<img>");
     imageMovie.attr("src",SingleMovieDetails['Poster']==='N/A'? "./assets/images/image-not-available.jpg":SingleMovieDetails['Poster']);
-
     
     divSingleMovieColumnNotification.append(imageMovie);
     divSingleMovieColumns.append(divSingleMovieColumnNotification);
@@ -471,7 +473,8 @@ function displayMoreDetails(SingleMovieDetails){
     divSingleMovieBackButton.attr("data-label",pageNumber);
     divSingleMovieBackButton.text("Back");
     divSingleMovieColumnNotification.append(divSingleMovieBackButton);
-        // This is a button for the trigger warning 
+    
+    // This is a button for the trigger warning 
     const btn = document.createElement("button");
     btn.className = "button is-primary btn-trigger";
     btn.innerHTML = "Show Trigger warnings and spoilers";
@@ -509,7 +512,6 @@ function removeFromCache(event)
 
 function init(){
     btnSearch.disabled = true;
-    //getSearchHistory(); 
 }
 
 init();
@@ -534,23 +536,7 @@ function closeModalDialog(event){
     
 }
 
-// words API related code
-const options = { // code provided by API docs
-	method: 'GET',
-	headers: {
-		'X-RapidAPI-Host': 'wordsapiv1.p.rapidapi.com',
-		'X-RapidAPI-Key': '6ecbaac172msh867cf483a4913b6p183836jsn739ee58e425f' // 
-        //'X-RapidAPI-Key': '19e0589afbmsh556050275caa3029p18158fjsnbd5c863b8ce8'   // Murad
-	}
-};
-
-var lowerCase; // have to make strings lowercase to make sure includes() list works correctly
-var wordsSplit; // splits the title entered by each word
-var wordsNotChanged = []; // empty array
-var wordsChanged = []; // empty array
-var wordsChangedChecker = []; // empty array, checks array length
-var wordDone=0;
-var wordsLength=0;
+// ---------------------------------------------------     words API related code--------------------------------------------------------------
 
 function useWords(SingleMovieDetails) { // calls wordsAPI to change words which will generate title
     lowerCase = SingleMovieDetails.toLowerCase(); // have to make strings lowercase to make sure includes() list works correctly
@@ -589,12 +575,10 @@ function getFetch(word,i)
                 return response.json();
             })
             .then(function (data) {
-                // console.log(data);
                 var keysCheck = Object.keys(data); // gets the object key names from the call
-                // console.log(keysCheck);
                 if (keysCheck.includes("results")) { // to check if the word called has this key
                     var resultsCheck = Object.keys(data.results[0]); // checks the keys inside array 0
-                    //console.log(resultsCheck);
+                
                 }
                 if (keysCheck.includes("results") && resultsCheck.includes("synonyms")) { // checks that those keys are in the object
                     
@@ -606,8 +590,7 @@ function getFetch(word,i)
                 } else {
                     wordsChanged.push(word); // returns the original word entered
                 }
-                // console.log("comng here");
-                // console.log(i);
+                
                 for (var j = 0; j < wordsChanged.length; j++) { // to capitalise the first letter of each word in an array, source: https://flexiple.com/javascript-capitalize-first-letter/#:~:text=To%20capitalize%20the%20first%20character,()%20function%20to%20capitalize%20it.
                     wordsChanged[j] = wordsChanged[j].charAt(0).toUpperCase() + wordsChanged[j].slice(1); // in the jth index of the array, the first character changes to uppercase and is then concatenated with the rest of the word that was sliced from the second letter
                 }
