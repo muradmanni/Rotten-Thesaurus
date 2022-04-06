@@ -38,6 +38,10 @@ is an API for the english language. Definitions, related words, rhymes, and more
 OMBD API
 The OMDb API is a web service to obtain movie information, all content and images on the site are contributed and maintained by our users.
 
+## Deployed application
+
+Link to the deployed application: [https://marko-petreski.github.io/Rotten-Thesaurus/](https://marko-petreski.github.io/Rotten-Thesaurus/)
+
 ## Demo of Rotten thesaurus
 
 
