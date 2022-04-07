@@ -96,7 +96,7 @@ function omdbSearchTitle(movieTitle,page){
                 modal.className="modal is-active";
                 modalCardTitle.textContent="Not Found"
                 modalCloseButton.setAttribute("data-id","not-found");
-                modalErrorMessageSpan.textContent= movieTitle + " not found on IMDB, please check the movie title and search again.";
+                modalErrorMessageSpan.textContent= movieTitle + " not found on OMDB, please check the movie title and search again.";
             }
             else{
                 sectionSearch.setAttribute("class","hero"); //Moving the searchbox at top from the middle of the page.
