@@ -59,9 +59,11 @@ is an API for the english language. Definitions, related words, rhymes, and more
 OMBD API
 The OMDb API is a web service to obtain movie information, all content and images on the site are contributed and maintained by our users.
 
+
 ## CSS Library
 Bulma: the modern CSS framework that just works.
 Bulma is a free, open source framework that provides ready-to-use frontend components that you can easily combine to build responsive web interfaces.
+
 
 ## Demo of Rotten thesaurus
 <img src="./assets/Rotten Thesaurus gif.gif">
